@@ -7,7 +7,7 @@
 
 一款基于Rust的Shellcode Loader，具有图形化界面、多种加密方式、反沙箱检测和资源伪造功能。
 
-> 本项目基于 [JoJoLoader](https://github.com/Pizz33/JoJoLoader) 改进而来，增强了图形界面、扩展了加密方式和运行模式，并优化了配置管理系统。
+> 本项目基于 [JoJoLoader](https://github.com/Pizz33/JoJoLoader) 改进而来。
 
 ## ✨ 特性
 
