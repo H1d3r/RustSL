@@ -157,14 +157,20 @@ cargo build --release --no-default-features \
 
 ### 添加新的加密方式
 1. 在 `encrypt.py` 中添加加密函数
-2. 在 `src/exec_shellcode/` 中添加对应的解密模块
+2. 在 `src/exec/` 中添加对应的解密模块
 3. 在 `Cargo.toml` 中添加 feature
 4. 在 `config/plugins.json` 中注册
 
 ### 添加新的运行方式
-1. 在 `src/exec_shellcode/` 中实现执行逻辑
+1. 在 `src/decrypt/` 中实现执行逻辑
 2. 在 `Cargo.toml` 中添加 feature
 3. 在 `config/plugins.json` 中注册
+
+### 添加新的VM检测策略
+1. 在 `src/guard/` 中实现执行逻辑
+2. 在 `Cargo.toml` 中添加 feature
+3. 在 `config/plugins.json` 中注册
+
 
 ## 📸 截图
 
