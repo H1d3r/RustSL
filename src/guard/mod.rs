@@ -1,4 +1,4 @@
-#[cfg(not(feature = "no_sandbox"))]
+#[cfg(feature = "sandbox")]
 use std::process;
 #[cfg(feature = "vm_check_desktop_files")]
 use std::path::PathBuf;

@@ -83,8 +83,6 @@ class WorkerThread(QThread):
             # 资源伪造
             if self.params.get('forgery_enable'):
                 features.append('with_forgery')
-            if not any(f.startswith('vm_check_') for f in features):
-                features.append('no_sandbox')
             features_str = ','.join(features)
             self.log_signal.emit(f'本次编译启用 features: {features_str}')
             build_cmd = ['cargo', 'build', '--release', '--no-default-features', f'--features={features_str}']

