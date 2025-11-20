@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QComboBox, QFileDialog
 from PyQt5.QtGui import QIcon
 
 def list_ico_files():
-    app_icons_dir = os.path.join(os.getcwd(), 'icons', 'app_icons')
+    app_icons_dir = os.path.join(os.getcwd(), 'icons')
     if not os.path.isdir(app_icons_dir):
         return []
     return [f for f in os.listdir(app_icons_dir) if f.lower().endswith('.ico')]
@@ -17,7 +17,7 @@ class BinComboBox(QComboBox):
         self.clear()
         input_dir = os.path.join(os.getcwd(), 'input')
         default_idx = -1
-        bin_icon = QIcon(os.path.join('icons', 'bin.ico')) if os.path.exists(os.path.join('icons', 'bin.ico')) else QIcon()
+        bin_icon = QIcon(os.path.join('gui', 'icons', 'bin.ico')) if os.path.exists(os.path.join('gui', 'icons', 'bin.ico')) else QIcon()
         if os.path.isdir(input_dir):
             files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
             for i, f in enumerate(files):
@@ -48,11 +48,11 @@ class IcoComboBox(QComboBox):
         self.clear()
         ico_files = list_ico_files()
         if not ico_files:
-            icon_path = os.path.join('icons', 'app_icons', 'excel.ico')
+            icon_path = os.path.join('icons', 'excel.ico')
             self.addItem(QIcon(icon_path), 'excel.ico', icon_path)
         else:
             for f in ico_files:
-                icon_path = os.path.join('icons', 'app_icons', f)
+                icon_path = os.path.join('icons', f)
                 self.addItem(QIcon(icon_path), f, icon_path)
         if self.count() > 0 and self.currentIndex() == -1:
             self.setCurrentIndex(0)

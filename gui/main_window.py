@@ -14,7 +14,7 @@ from .widgets import BinComboBox, IcoComboBox
 from .sign import SignAppComboBox
 
 def get_folder_icon():
-    return QIcon(os.path.join('icons', 'folder.ico')) if os.path.exists(os.path.join('icons', 'folder.ico')) else QIcon()
+    return QIcon(os.path.join('gui', 'icons' ,'folder.ico')) if os.path.exists(os.path.join('gui', 'icons' ,'folder.ico')) else QIcon()
 
 def load_plugins_manifest():
     path = os.path.join('config', 'plugins.json')
@@ -144,7 +144,7 @@ class LoaderGUI(QWidget):
         super().__init__()
         self.setWindowTitle('RSL')
         self.setMinimumWidth(650)
-        self.setWindowIcon(QIcon(os.path.join('icons', 'icon.ico')))
+        self.setWindowIcon(QIcon(os.path.join('gui', 'icons' ,'icon.ico')))
         self.setStyleSheet(self.qss())
         self.init_ui()
     def log_append(self, text):
@@ -238,7 +238,7 @@ class LoaderGUI(QWidget):
         enc_layout = QHBoxLayout()
         self.enc_box = QComboBox()
         self.enc_box.setIconSize(QSize(20, 20))
-        enc_icon = QIcon(os.path.join('icons', 'enc.ico')) if os.path.exists(os.path.join('icons', 'enc.ico')) else QIcon()
+        enc_icon = QIcon(os.path.join('gui', 'icons' ,'enc.ico')) if os.path.exists(os.path.join('gui', 'icons' ,'enc.ico')) else QIcon()
         # 从配置填充加密方式
         _manifest = load_plugins_manifest()
         for e in _manifest['encryption']:
@@ -271,7 +271,7 @@ class LoaderGUI(QWidget):
         mem_group = QGroupBox('🧠 内存分配方式')
         mem_layout = QHBoxLayout()
         self.mem_mode_box = QComboBox()
-        mem_icon = QIcon(os.path.join('icons', 'mem.ico')) if os.path.exists(os.path.join('icons', 'mem.ico')) else QIcon()
+        mem_icon = QIcon(os.path.join('gui', 'icons' ,'mem.ico')) if os.path.exists(os.path.join('gui', 'icons' ,'mem.ico')) else QIcon()
         mem_modes = _manifest.get('alloc_mem_modes', [])
         for m in mem_modes:
             self.mem_mode_box.addItem(mem_icon, m.get('label', m['id']), m['id'])
@@ -317,7 +317,7 @@ class LoaderGUI(QWidget):
         run_layout = QHBoxLayout()
         self.run_mode_box = QComboBox()
         self.run_mode_box.setIconSize(QSize(20, 20))
-        run_icon = QIcon(os.path.join('icons', 'run.ico')) if os.path.exists(os.path.join('icons', 'run.ico')) else QIcon()
+        run_icon = QIcon(os.path.join('gui', 'icons' ,'run.ico')) if os.path.exists(os.path.join('gui', 'icons' ,'run.ico')) else QIcon()
         run_modes = _manifest['run_modes']
         for rm in run_modes:
             self.run_mode_box.addItem(run_icon, rm.get('label', rm['id']), rm['id'])
@@ -340,15 +340,12 @@ class LoaderGUI(QWidget):
         self.sign_choose_btn.setFixedWidth(32)
         self.sign_choose_btn.clicked.connect(lambda: self.sign_app_box.choose_file(self))
         self.sign_enable_box = QCheckBox('启用签名')
-        self.forgery_enable_box = QCheckBox('🎭 文件捆绑')
         sign_layout.addWidget(self.sign_app_box)
         sign_layout.addWidget(self.sign_choose_btn)
         sign_layout.addWidget(self.sign_enable_box)
-        sign_layout.addWidget(self.forgery_enable_box)
         sign_layout.setStretch(0, 1)
         sign_layout.setStretch(1, 0)
         sign_layout.setStretch(2, 0)
-        sign_layout.setStretch(3, 0)
         sign_group.setLayout(sign_layout)
         layout.addWidget(sign_group)
 
@@ -357,20 +354,36 @@ class LoaderGUI(QWidget):
         self.progress.setValue(0)
         layout.addWidget(self.progress)
 
-        # 9. 日志输出
+        # 9. 日志输出 & 10. 生成按钮 (并列同高)
+        bottom_layout = QHBoxLayout()
+
         log_group = QGroupBox('📋 日志输出')
         log_layout = QVBoxLayout()
         self.log = QTextEdit()
         self.log.setReadOnly(True)
         log_layout.addWidget(self.log)
         log_group.setLayout(log_layout)
-        layout.addWidget(log_group)
-
-        # 10. 生成按钮
-        self.gen_btn = QPushButton(QIcon(os.path.join('icons', 'rocket.ico')), '一键生成')
-        self.gen_btn.setFixedHeight(38)
+        
+        # 右侧布局：文件捆绑 + 生成按钮
+        right_layout = QVBoxLayout()
+        self.forgery_enable_box = QCheckBox('🎭 文件捆绑')
+        
+        # 按钮改为正方形，无文字，只显示图标
+        self.gen_btn = QPushButton(QIcon(os.path.join('gui', 'icons' ,'rocket.ico')), '')
+        self.gen_btn.setIconSize(QSize(100, 100))
+        # 设定高度与日志框一致，且为正方形
+        fixed_height = 120
+        self.gen_btn.setFixedSize(fixed_height, fixed_height)
+        
+        right_layout.addWidget(self.forgery_enable_box)
+        right_layout.addWidget(self.gen_btn)
+        
         self.gen_btn.clicked.connect(self.run_all)
-        layout.addWidget(self.gen_btn, alignment=Qt.AlignHCenter)
+        
+        bottom_layout.addWidget(log_group)
+        bottom_layout.addLayout(right_layout)
+        
+        layout.addLayout(bottom_layout)
         self.setLayout(layout)
 
     # 已无下拉框，无需切换
@@ -379,7 +392,6 @@ class LoaderGUI(QWidget):
 
     def run_all(self):
         self.gen_btn.setEnabled(False)
-        self.gen_btn.setText('生成中...')
         input_bin = self.bin_box.itemData(self.bin_box.currentIndex())
         if not input_bin:
             input_bin = 'calc.bin'
@@ -391,7 +403,7 @@ class LoaderGUI(QWidget):
         enc_method = self.enc_box.itemData(self.enc_box.currentIndex()) or self.enc_box.currentText()
         icon_path = self.ico_box.itemData(self.ico_box.currentIndex())
         if not icon_path:
-            icon_path = os.path.join('icons', 'app_icons', 'excel.ico')
+            icon_path = os.path.join('icons' , 'excel.ico')
         sign_enable = self.sign_enable_box.isChecked()
         sign_app = self.sign_app_box.itemData(self.sign_app_box.currentIndex())
         forgery_enable = self.forgery_enable_box.isChecked()
@@ -409,7 +421,6 @@ class LoaderGUI(QWidget):
         self.worker.start()
     def on_gen_error(self, msg):
         self.gen_btn.setEnabled(True)
-        self.gen_btn.setText('一键生成')
         self.progress.setValue(0)
         self.log_append('[错误] ' + msg)
         QMessageBox.critical(self, '错误', msg)
@@ -417,5 +428,4 @@ class LoaderGUI(QWidget):
     def on_gen_done(self, dst_file):
         self.progress.setValue(100)
         self.gen_btn.setEnabled(True)
-        self.gen_btn.setText('一键生成')
         QMessageBox.information(self, '完成', f'生成成功: {dst_file}')
