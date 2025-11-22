@@ -308,3 +308,14 @@ def process(data, args):
 - PyQt5 开发团队
 
 ⭐ 如果这个项目对你有帮助，请给一个 Star！
+
+---
+
+## 📝 更新日志
+
+### 2025-11-22
+- **重构加密模块**：将 `encrypt.py` 重构为插件化架构，支持动态加载加密插件。
+- **新增插件目录**：添加 `encrypt_plugins/` 目录，包含示例插件（ipv4, ipv6, mac, uuid, rc4）。
+- **重构decrypt模块**：将具体解密函数拆分到子文件中
+- **重构并新增alloc_mem模块**：新增alloc_mem_global和alloc_mem_local实现内存分配
+- **重构并新增exec模块**：新增EnumUILanguagesW 回调注入和GDI 家族变种注入
