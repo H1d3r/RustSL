@@ -28,7 +28,7 @@
 
 ### 可拓展性
 - **插件化架构**：基于 `config/plugins.json` 配置文件动态加载功能模块，新插件只需实现特定接口（如 `name` 和 `process` 函数），即可自动被 GUI 和命令行工具识别，无需修改核心代码。
-- **模块化设计**：加密方式、运行模式和 VM 检测等功能模块独立存放（如 `encrypt_plugins/`、`src/decrypt/`、`src/exec_shellcode/`、`src/guard/`），便于单独开发和维护。
+- **模块化设计**：加密方式、运行模式和 VM 检测等功能模块独立存放（如 `encrypt_lib/`、`src/decrypt/`、`src/exec_shellcode/`、`src/guard/`），便于单独开发和维护。
 - **灵活的 Cargo features**：通过 Cargo features 控制编译内容，用户可选择性启用所需功能，减少不必要代码，优化二进制大小和性能。
 - **易于二次开发**：提供详细的二次开发指南，支持添加新加密方式、运行方式或检测策略，只需在相应目录添加代码并注册到配置文件中。
 
@@ -70,7 +70,7 @@ RustSL/
 │   └── utils/               # 工具函数
 ├── config/                  
 │   └── plugins.json         # 插件与功能配置
-├── encrypt_plugins/         # Python 加密插件目录
+├── encrypt_lib/         # Python 加密插件目录
 ├── sign/                    # 签名相关
 ├── encrypt.py               # Shellcode 加密脚本
 ├── main.py                  # GUI 启动入口
@@ -250,7 +250,7 @@ python encrypt.py -i input.bin -o output.bin -m rc4
 
 插件化说明：
 
-- `encrypt.py` 已重构为插件化：所有加密/编码方式都以插件形式放在 `encrypt_plugins/` 目录下。
+- `encrypt.py` 已重构为插件化：所有加密/编码方式都以插件形式放在 `encrypt_lib/` 目录下。
 - 每个插件应导出 `name` 字符串和 `process(data, args)` 函数，`encrypt.py` 会自动扫描并加载它们。
 
 列出当前可用插件：
@@ -264,7 +264,7 @@ python encrypt.py -i input.bin -o output.b64 -m aes-gcm
 ```
 
 若想添加新插件：
-1. 在 `encrypt_plugins/` 中新增 `.py` 文件。
+1. 在 `encrypt_lib/` 中新增 `.py` 文件。
 2. 在文件中导出 `name` 和 `process(data, args)`，也可以提供 `add_arguments(parser)` 来扩展 CLI 参数。
 3. 重新运行 `encrypt.py`，新插件会自动被发现。
 
@@ -281,7 +281,7 @@ cargo build --release --no-default-features \
 ## 🛠️ 二次开发
 
 ### 添加新的加密方式
-1. 在 encrypt_plugins/ 中添加加密插件脚本
+1. 在 encrypt_lib/ 中添加加密插件脚本
 2. 在 src/decrypt/ 中添加对应的解密模块
 3. 在 Cargo.toml 中添加 feature
 4. 在 config/plugins.json 中注册
@@ -337,7 +337,7 @@ cargo build --release --no-default-features \
 
 ### 2025-11-22
 - **重构加密模块**：将 `encrypt.py` 重构为插件化架构，支持动态加载加密插件。
-- **新增插件目录**：添加 `encrypt_plugins/` 目录，包含示例插件（ipv4, ipv6, mac, uuid, rc4）。
+- **新增插件目录**：添加 `encrypt_lib/` 目录，包含示例插件（ipv4, ipv6, mac, uuid, rc4）。
 - **重构decrypt模块**：将具体解密函数拆分到子文件中
 - **重构并新增alloc_mem模块**：新增alloc_mem_global和alloc_mem_local实现内存分配
 - **重构并新增exec模块**：新增EnumUILanguagesW 回调注入和GDI 家族变种注入
