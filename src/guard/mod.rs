@@ -1,7 +1,5 @@
 #[cfg(feature = "sandbox")]
 use std::process;
-#[cfg(feature = "vm_check_desktop_files")]
-use std::path::PathBuf;
 
 // VM检测模块
 #[cfg(feature = "vm_check_tick")]
@@ -13,7 +11,6 @@ pub use crate::guard::tick::is_tick_abnormal;
 mod mouse;
 #[cfg(feature = "vm_check_mouse")]
 pub use crate::guard::mouse::has_human_mouse_movement;
-
 
 #[cfg(feature = "vm_check_desktop_files")]
 mod desktop_files;
