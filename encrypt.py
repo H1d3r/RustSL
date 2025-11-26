@@ -18,7 +18,7 @@ def read_binary_file(file_path):
         return None
 
 
-def save_encrypted_base64(file_path, b64_data):
+def save(file_path, b64_data):
     with open(file_path, 'wb') as f:
         f.write(b64_data)
 
@@ -106,8 +106,7 @@ def main():
     else:
         raise SystemExit(f"Plugin for {args.method} does not expose a process function")
 
-    b64 = base64.b64encode(final)
-    save_encrypted_base64(args.output, b64)
+    save(args.output, final)
     print(f"Encrypted data (new format, method={args.method}) saved to {args.output}")
 
 

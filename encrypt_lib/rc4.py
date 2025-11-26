@@ -3,6 +3,7 @@ description = 'RC4 encrypt with random 32-byte key, output [key(32)][sha256(orig
 
 import os
 import hashlib
+import base64
 
 def sha256_bytes(b):
 	sha = hashlib.sha256()
@@ -20,4 +21,4 @@ def process(data, args):
     encrypted = cipher.encrypt(data)
     hash1 = sha256_bytes(data)
     final = key + hash1 + encrypted
-    return final
+    return base64.b64encode(final)
