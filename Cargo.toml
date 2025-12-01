@@ -41,6 +41,7 @@ default = ["decrypt_ipv4", "alloc_mem_va", "run_create_thread", "none_decode"]
 # 解密算法特性开关
 none_decode = []
 base64_decode = []
+urlsafe_base64_decode = []
 base32_decode = []
 hex_decode = []
 decrypt_rc4 = []                # 启用RC4解密
