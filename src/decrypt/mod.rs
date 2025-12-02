@@ -39,3 +39,9 @@ pub use crate::decrypt::aes::decrypt;
 mod xchacha20;
 #[cfg(feature = "decrypt_xchacha20")]
 pub use crate::decrypt::xchacha20::decrypt;
+
+// ECC decryption
+#[cfg(feature = "decrypt_ecc")]
+mod ecc;
+#[cfg(feature = "decrypt_ecc")]
+pub use crate::decrypt::ecc::decrypt;
