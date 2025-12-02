@@ -14,21 +14,17 @@ pub fn decrypt(data: &[u8]) -> Result<(*mut u8, usize), Box<dyn std::error::Erro
     let nonce = &data[32+33..32+33+12];
     let ciphertext_with_tag = &data[32+33+12..];
 
-    // Load private key
     let priv_key = SecretKey::from_bytes(priv_key_bytes.into())
         .map_err(|e| format!("Invalid private key: {}", e))?;
 
-    // Load peer public key
     let peer_pub = PublicKey::from_sec1_bytes(peer_pub_bytes)
         .map_err(|e| format!("Invalid public key: {}", e))?;
 
-    // Perform ECDH
     let shared_secret = elliptic_curve::ecdh::diffie_hellman(
         priv_key.to_nonzero_scalar(),
         peer_pub.as_affine()
     );
 
-    // Derive key using HKDF
     let hkdf = Hkdf::<Sha256>::new(None, shared_secret.raw_secret_bytes().as_ref());
     let mut key_bytes = [0u8; 32];
     hkdf.expand(&[], &mut key_bytes).map_err(|_| "HKDF expansion failed")?;
@@ -37,35 +33,29 @@ pub fn decrypt(data: &[u8]) -> Result<(*mut u8, usize), Box<dyn std::error::Erro
     let cipher = Aes256Gcm::new(key);
     let nonce_slice = Nonce::from_slice(nonce);
 
-    // Split ciphertext and tag
     let tag_pos = ciphertext_with_tag.len() - 16;
     let ciphertext = &ciphertext_with_tag[..tag_pos];
     let tag = Tag::from_slice(&ciphertext_with_tag[tag_pos..]);
 
     let plaintext_len = ciphertext.len();
 
-    // Allocate memory
     let ptr = unsafe { crate::alloc_mem::alloc_mem(plaintext_len).map_err(|e| e)? };
     
     if ptr.is_null() {
         return Err("Memory allocation failed".into());
     }
 
-    // Copy ciphertext to allocated memory
     unsafe {
         std::ptr::copy_nonoverlapping(ciphertext.as_ptr(), ptr, plaintext_len);
     }
 
-    // Create mutable slice for in-place decryption
     let mut buffer = unsafe { std::slice::from_raw_parts_mut(ptr, plaintext_len) };
 
-    // Decrypt in place
     match cipher.decrypt_in_place_detached(nonce_slice, &[], &mut buffer, tag) {
         Ok(_) => {
             Ok((ptr, plaintext_len))
         }
         Err(_) => {
-            // Memory leak on error
             Err("Decryption failed".into())
         }
     }

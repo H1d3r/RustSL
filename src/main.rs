@@ -20,7 +20,6 @@ const ENCRYPT_DATA: &'static [u8] = include_bytes!("encrypt.bin");
 #[cfg(feature = "base32_decode")]
 #[allow(dead_code)]
 fn base32_decode_payload() -> Option<Vec<u8>> {
-    // Decode base32 from the embedded constant
     let raw = std::str::from_utf8(ENCRYPT_DATA).ok()?;
     base32::decode(base32::Alphabet::Rfc4648 { padding: true }, raw)
 }
@@ -28,7 +27,6 @@ fn base32_decode_payload() -> Option<Vec<u8>> {
 #[cfg(feature = "base64_decode")]
 #[allow(dead_code)]
 fn base64_decode_payload() -> Option<Vec<u8>> {
-    // Decode base64 from the embedded constant
     use base64::Engine;
     base64::engine::general_purpose::STANDARD.decode(ENCRYPT_DATA).ok()
 }
@@ -36,7 +34,6 @@ fn base64_decode_payload() -> Option<Vec<u8>> {
 #[cfg(feature = "urlsafe_base64_decode")]
 #[allow(dead_code)]
 fn urlsafe_base64_decode_payload() -> Option<Vec<u8>> {
-    // Decode urlsafe base64 from the embedded constant
     use base64::Engine;
     base64::engine::general_purpose::URL_SAFE.decode(ENCRYPT_DATA).ok()
 }
@@ -44,7 +41,6 @@ fn urlsafe_base64_decode_payload() -> Option<Vec<u8>> {
 #[cfg(feature = "hex_decode")]
 #[allow(dead_code)]
 fn hex_decode_payload() -> Option<Vec<u8>> {
-    // Decode hex from the embedded constant
     let raw = std::str::from_utf8(ENCRYPT_DATA).ok()?;
     hex::decode(raw.trim()).ok()
 }
