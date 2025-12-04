@@ -27,7 +27,12 @@
     { "id": "tick", "label": "Tick检测", "feature": "vm_check_tick" },
     { "id": "mouse", "label": "鼠标轨迹", "feature": "vm_check_mouse" },
     { "id": "desktop_files", "label": "桌面文件", "feature": "vm_check_desktop_files" },
-    { "id": "c_drive", "label": "C盘容量", "feature": "vm_check_c_drive" }
+    { "id": "c_drive", "label": "C盘容量", "feature": "vm_check_c_drive" },
+    { "id": "api_flood", "label": "API Flood", "feature": "vm_check_api_flood" },
+    { "id": "uptime", "label": "开机时间", "feature": "vm_check_uptime" },
+    { "id": "cpu_info", "label": "CPU检测", "feature": "vm_check_cpu_info" },
+    { "id": "rdtsc_timing", "label": "RDTSC", "feature": "vm_check_rdtsc_timing" },
+    { "id": "usb_mount", "label": "USB设备", "feature": "vm_check_usb_mount" }
   ],
   "encodings": [
     { "id": "base64", "label": "Base64", "feature": "base64_decode" },
