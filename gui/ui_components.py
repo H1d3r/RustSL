@@ -58,7 +58,7 @@ def create_mem_mode_combobox():
 
 def create_load_payload_combobox():
     combo = QComboBox()
-    load_icon = get_icon('load')  # Assuming 'load.ico' exists or will fallback to empty
+    load_icon = get_icon('pd')  # Assuming 'load.ico' exists or will fallback to empty
     
     manifest = load_plugins_manifest()
     load_modes = manifest.get('load_payload_modes', [])

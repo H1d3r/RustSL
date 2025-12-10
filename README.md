@@ -59,6 +59,7 @@
 
 ### 🛡️ VM/沙箱检测
 - **Tick 检测** - 时间差异分析
+- **Peek Message** - 利用 Windows 消息队列机制检测沙箱
 - **鼠标轨迹检测** - 通过多点轨迹特征判断真实鼠标活动
 - **桌面文件检测** - 检查桌面文件数量以识别虚拟环境
 - **C盘容量检测** - 检查 C 盘剩余容量以识别虚拟环境
@@ -81,8 +82,10 @@
 - 可拓展...
 
 ### 📦 Payload加载方式(2025-12-10新增)
-- **Read From Self** - 从自身二进制文件读取payload
+- **Read File** - 从自身二进制文件读取payload
 - **Named Pipe** - 通过命名管道加载payload，可绕过某些沙箱检测
+- **Mailslot** - 通过邮件槽加载payload，另一种IPC机制
+- **Read File V2** - 读取自身文件内容并覆盖内存，混淆数据流分析
 - 可拓展...
 
 ## 📦 项目结构
@@ -436,9 +439,15 @@ set "RSL_ICON_PATH=icons\avp_0000.ico" && cargo build --release --no-default-fea
 
 ### 2025-12-10
 
+参考了arsenal_kit的一些思路。
+
 - **重构Payload加载模块**：将payload加载逻辑重构为模块化架构
 - **新增Named Pipe加载方式**：实现基于命名管道的payload加载
+- **新增Mailslot加载方式**：实现基于邮件槽的payload加载
+- **新增Read File V2加载方式**：实现从自身文件读取并覆盖内存的payload加载
 - **更新GUI支持**：在GUI中添加"Payload 加载方式"选项
+
+- **增加PeekMessage反沙箱检测**：通过Windows消息队列机制检测沙箱环境
 
 最新的微步沙箱检测如下：
 ![alt text](static/12-10-1.png)

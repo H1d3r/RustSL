@@ -7,6 +7,8 @@ mod uptime;
 mod usb_mount;
 mod cpu_info;
 mod rdtsc_timing;
+#[cfg(feature = "vm_check_peek")]
+mod peek;
 
 #[cfg(feature = "sandbox")]
 pub fn guard_vm() {
@@ -59,4 +61,7 @@ pub fn guard_vm() {
         let threshold_ratio: f64 = 0.8;
         if rdtsc_timing::check_rdtsc_sandboxed(sleep_ms, threshold_ratio) { process::exit(1); }
     }
+
+    #[cfg(feature = "vm_check_peek")]
+    if let Err(_) = peek::check() { process::exit(1); }
 }

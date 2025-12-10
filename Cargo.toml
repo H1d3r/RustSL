@@ -40,11 +40,13 @@ rand = "0.8"
 embed-resource = "1.8.0"
 
 [features]
-default = ["decrypt_ipv4", "alloc_mem_va", "run_create_thread", "none_decode", "load_payload_read_from_self"]
+default = ["decrypt_ipv4", "alloc_mem_va", "run_create_thread", "none_decode", "load_payload_read_file"]
 
 # Payload Loading Modes
-load_payload_read_from_self = []
+load_payload_read_file = []
 load_payload_pipe = []
+load_payload_mailslot = []
+load_payload_read_file_v2 = []
 
 # 解密算法特性开关
 none_decode = []
@@ -96,6 +98,7 @@ vm_check_c_drive = ["sandbox"]
 vm_check_desktop_files = ["sandbox"]
 vm_check_tick = ["sandbox"]
 vm_check_api_flood = ["sandbox"]
+vm_check_peek = ["sandbox"]
 vm_check_mouse = ["sandbox"]
 vm_check_uptime = ["sandbox"]
 vm_check_usb_mount = ["sandbox"]

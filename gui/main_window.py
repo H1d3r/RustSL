@@ -40,19 +40,19 @@ class LoaderGUI(QWidget):
         folder_icon = get_folder_icon()
         
         layout.addWidget(self._create_bin_group(folder_icon))
+
+        layout.addWidget(self._create_load_payload_group())
         
         layout.addWidget(self._create_encryption_group())
-        
-        layout.addWidget(self._create_icon_group(folder_icon))
-        
-        layout.addWidget(self._create_mem_mode_group())
-        
-        layout.addWidget(self._create_load_payload_group())
 
         layout.addWidget(self._create_vm_checks_group())
+                
+        layout.addWidget(self._create_mem_mode_group())
         
         layout.addWidget(self._create_run_mode_group())
         
+        layout.addWidget(self._create_icon_group(folder_icon))
+
         layout.addWidget(self._create_sign_group(folder_icon))
         
         self.progress = QProgressBar()
