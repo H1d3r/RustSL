@@ -81,7 +81,7 @@ class LoaderGUI(QWidget):
         return bin_group
     
     def _create_encryption_group(self):
-        enc_group = QGroupBox('加密方式')
+        enc_group = QGroupBox('加解密')
         enc_layout = QHBoxLayout()
         self.enc_box = create_encryption_combobox()
         self.encode_box = QComboBox()
@@ -112,7 +112,7 @@ class LoaderGUI(QWidget):
         return ico_group
     
     def _create_load_payload_group(self):
-        load_group = QGroupBox('Payload 加载方式')
+        load_group = QGroupBox('Payload 加载')
         load_layout = QHBoxLayout()
         self.load_payload_box = create_load_payload_combobox()
         load_layout.addWidget(self.load_payload_box)
@@ -120,7 +120,7 @@ class LoaderGUI(QWidget):
         return load_group
 
     def _create_mem_mode_group(self):
-        mem_group = QGroupBox('内存分配方式')
+        mem_group = QGroupBox('内存分配')
         mem_layout = QHBoxLayout()
         self.mem_mode_box = create_mem_mode_combobox()
         mem_layout.addWidget(self.mem_mode_box)
@@ -128,7 +128,7 @@ class LoaderGUI(QWidget):
         return mem_group
     
     def _create_vm_checks_group(self):
-        vm_group = QGroupBox('Sandbox 检测')
+        vm_group = QGroupBox('Sandbox/VM 检测')
         vm_layout = QVBoxLayout()
         self.vm_checks_group = QGroupBox('')
         self.vm_checks_group.setVisible(True)
@@ -139,7 +139,7 @@ class LoaderGUI(QWidget):
         return vm_group
     
     def _create_run_mode_group(self):
-        run_group = QGroupBox('运行方式')
+        run_group = QGroupBox('执行')
         run_layout = QVBoxLayout()
         self.run_mode_box = create_run_mode_combobox()
         self.run_mode_box.currentIndexChanged.connect(self.on_run_mode_changed)
