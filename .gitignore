@@ -1,5 +1,6 @@
 target/*
 src/encrypt.bin
+icon.rc
 output/*
 */__pycache__/
 __pycache__
@@ -8,4 +9,3 @@ input/*
 !input/calc.bin
 arsenal-kit/*
 .vscode/*
-icon.rc

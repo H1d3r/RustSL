@@ -436,13 +436,11 @@ set "RSL_ICON_PATH=icons\avp_0000.ico" && cargo build --release --no-default-fea
 
 ### 2025-12-10
 
-通过学习arsenal_kit的源代码，学习了一些新的免杀技术，准备将其集成到RustSL中：
+- **重构Payload加载模块**：将payload加载逻辑重构为模块化架构
+- **新增Named Pipe加载方式**：实现基于命名管道的payload加载
+- **更新GUI支持**：在GUI中添加"Payload 加载方式"选项
 
-- **重构Payload加载模块**：将payload加载逻辑重构为模块化架构，支持多种加载方式（Read From Self 和 Named Pipe）。
-- **新增Named Pipe加载方式**：实现基于命名管道的payload加载，以绕过某些沙箱检测。
-- **更新GUI支持**：在GUI中添加"Payload 加载方式"选项，支持用户选择不同的加载策略。
-
-经过测试，Pipe加载方式提升了免杀效果。最新的微步沙箱检测如下：
+最新的微步沙箱检测如下：
 ![alt text](static/12-10-1.png)
 上线CS：
 ![alt text](static/12-10-2.png)
