@@ -461,7 +461,7 @@ set "RSL_ICON_PATH=icons\avp_0000.ico" && cargo build --release --no-default-fea
   - NtMapViewOfSection
   - NtCreateThreadEx
   - NtQueueApcThread
-- 参考![safedv/RustVEHSyscalls](https://github.com/safedv/RustVEHSyscalls) 增加了VEH Syscalls:
+- 参考[safedv/RustVEHSyscalls](https://github.com/safedv/RustVEHSyscalls) 增加了VEH Syscalls:
   - NtAllocVirtualMemory
   - NtMapViewOfSection
   - NtCreateThreadEx
