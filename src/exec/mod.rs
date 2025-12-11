@@ -30,6 +30,16 @@ mod apc;
 #[cfg(feature = "run_apc")]
 pub use crate::exec::apc::exec;
 
+#[cfg(feature = "run_apc_syscall")]
+mod apc_syscall;
+#[cfg(feature = "run_apc_syscall")]
+pub use crate::exec::apc_syscall::exec;
+
+#[cfg(feature = "run_syscall")]
+mod create_thread_syscall;
+#[cfg(feature = "run_syscall")]
+pub use crate::exec::create_thread_syscall::exec;
+
 #[cfg(feature = "run_fiber")]
 mod fiber;
 #[cfg(feature = "run_fiber")]

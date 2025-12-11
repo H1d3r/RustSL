@@ -28,6 +28,16 @@ mod section;
 #[cfg(feature = "alloc_mem_section")]
 pub use crate::alloc_mem::section::alloc_mem;
 
+#[cfg(feature = "alloc_mem_section_syscall")]
+mod section_syscall;
+#[cfg(feature = "alloc_mem_section_syscall")]
+pub use crate::alloc_mem::section_syscall::alloc_mem;
+
+#[cfg(feature = "alloc_mem_syscall")]
+mod va_syscall;
+#[cfg(feature = "alloc_mem_syscall")]
+pub use crate::alloc_mem::va_syscall::alloc_mem;
+
 #[cfg(feature = "alloc_mem_sh_alloc")]
 mod sh_alloc;
 #[cfg(feature = "alloc_mem_sh_alloc")]
