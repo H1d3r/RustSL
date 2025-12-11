@@ -449,9 +449,20 @@ set "RSL_ICON_PATH=icons\avp_0000.ico" && cargo build --release --no-default-fea
 
 - **增加PeekMessage反沙箱检测**：通过Windows消息队列机制检测沙箱环境
 
-- **增加堆栈欺骗**
-
 最新的微步沙箱检测如下：
 ![alt text](static/12-10-1.png)
 上线CS：
 ![alt text](static/12-10-2.png)
+
+### 2025-12-11
+
+- 增加了Indirect Syscalls:
+  - NtAllocVirtualMemory
+  - NtMapViewOfSection
+  - NtCreateThreadEx
+  - NtQueueApcThread
+- 参考![safedv/RustVEHSyscalls](https://github.com/safedv/RustVEHSyscalls) 增加了VEH Syscalls:
+  - NtAllocVirtualMemory
+  - NtMapViewOfSection
+  - NtCreateThreadEx
+  - NtQueueApcThread

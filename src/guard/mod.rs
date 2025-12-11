@@ -9,8 +9,6 @@ mod cpu_info;
 mod rdtsc_timing;
 mod peek;
 
-pub mod spoof;
-
 #[cfg(feature = "sandbox")]
 pub fn guard_vm() {
     use std::process;
