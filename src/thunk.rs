@@ -1,7 +1,7 @@
 const _VC_LTL_VERSION: &'static str = "5.2.2";
 const _YY_THUNKS_VERSION: &'static str = "1.1.7";
 
-use std::{env, path::PathBuf};
+use std::{path::PathBuf};
 
 pub fn thunk() {
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();

@@ -476,3 +476,9 @@ set "RSL_ICON_PATH=icons\avp_0000.ico" && cargo build --release --no-default-fea
   - NtMapViewOfSection
   - NtCreateThreadEx
   - NtQueueApcThread
+
+### 2025-12-12
+
+- 重整GUI功能排列，使页面排列紧实
+- 升级文件捆绑功能，支持自选任意文件捆绑
+

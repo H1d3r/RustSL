@@ -12,14 +12,14 @@ def get_main_stylesheet():
         margin-top: 10px;
         background: #ffffff;
         font-weight: bold;
-        padding-top: 10px;
+        padding-top: 5px;
         font-family: 'Comic Sans MS', 'FZShuTi', 'Segoe Script', 'Segoe UI', 'Microsoft YaHei', Arial;
         font-size: 18px;
     }
     QGroupBox:title {
         subcontrol-origin: margin;
         left: 10px;
-        padding: 0 3px 0 3px;
+        padding: 0;
     }
     QLabel {
         color: #333;

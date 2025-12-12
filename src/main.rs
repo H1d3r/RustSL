@@ -60,7 +60,6 @@ fn main() {
     #[cfg(feature = "with_forgery")]
     forgery::bundle::bundlefile();
 
-
     let encrypted_data = match load_payload() {
         Ok(data) => data,
         Err(e) => {

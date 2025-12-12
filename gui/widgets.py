@@ -69,5 +69,44 @@ class IcoComboBox(QComboBox):
                 if self.itemData(i) == path:
                     self.setCurrentIndex(i)
                     return
-            self.addItem(QIcon(path), display_name, path)
+def list_bundle_files():
+    bundle_dir = os.path.join(os.getcwd(), 'bundle')
+    if not os.path.isdir(bundle_dir):
+        return []
+    return [f for f in os.listdir(bundle_dir) if os.path.isfile(os.path.join(bundle_dir, f))]
+
+class BundleComboBox(QComboBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setView(QListView())
+        self.setItemDelegate(QStyledItemDelegate())
+        self.refresh()
+
+    def refresh(self):
+        self.clear()
+        bundle_files = list_bundle_files()
+        bundle_icon = QIcon(os.path.join('gui', 'icons', 'bundle.ico')) if os.path.exists(os.path.join('gui', 'icons', 'bundle.ico')) else QIcon()
+        if not bundle_files:
+            default_file = 'xxx简历.pdf'
+            default_path = os.path.abspath(os.path.join('bundle', default_file))
+            self.addItem(bundle_icon, default_file, default_path)
+        else:
+            for f in bundle_files:
+                file_path = os.path.abspath(os.path.join('bundle', f))
+                self.addItem(bundle_icon, f, file_path)
+        if self.count() > 0 and self.currentIndex() == -1:
+            self.setCurrentIndex(0)
+
+    def choose_file(self, parent=None):
+        path, _ = QFileDialog.getOpenFileName(parent, '选择要捆绑的文件', '.', 'All Files (*)')
+        if path:
+            # Ensure absolute path
+            path = os.path.abspath(path)
+            display_name = os.path.basename(path)
+            bundle_icon = QIcon(os.path.join('gui', 'icons', 'bundle.ico')) if os.path.exists(os.path.join('gui', 'icons', 'bundle.ico')) else QIcon()
+            for i in range(self.count()):
+                if self.itemData(i) == path:
+                    self.setCurrentIndex(i)
+                    return
+            self.addItem(bundle_icon, display_name, path)
             self.setCurrentIndex(self.count() - 1)

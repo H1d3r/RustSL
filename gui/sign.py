@@ -7,7 +7,6 @@ class SignAppComboBox(QComboBox):
         super().__init__(parent)
         self.refresh()
         self.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.setMinimumContentsLength(30)
 
     def refresh(self):
         self.clear()

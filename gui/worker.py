@@ -59,7 +59,7 @@ class WorkerThread(QThread):
             '-e', self.params.get('encode_method', 'base64')
         ]
         
-        result = subprocess.run(enc_cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(enc_cmd, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=True)
         self.log_signal.emit(result.stdout)
         if result.stderr:
             self.log_signal.emit(result.stderr)
@@ -94,6 +94,13 @@ class WorkerThread(QThread):
         
         env_vars['RSL_ICON_PATH'] = self.params.get('icon_path', 'icons/excel.ico')
         
+        if self.params.get('forgery_enable'):
+            bundle_file = self.params.get('bundle_file', '')
+            if not bundle_file:
+                raise ValueError('文件捆绑已启用，但未选择要捆绑的文件！')
+            env_vars['RSL_BUNDLE_FILE'] = bundle_file
+            env_vars['RSL_BUNDLE_FILENAME'] = os.path.basename(bundle_file)
+        
         env_cmd_parts = []
         for key, value in env_vars.items():
             env_cmd_parts.append(f'set "{key}={value}" && ')
@@ -107,7 +114,7 @@ class WorkerThread(QThread):
         
         full_cmd = ''.join(env_cmd_parts) + build_cmd_str
         
-        result = subprocess.run(full_cmd, shell=True, capture_output=True, text=True, check=True)
+        result = subprocess.run(full_cmd, shell=True, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=True)
         self.log_signal.emit(result.stdout)
         if result.stderr:
             self.log_signal.emit(result.stderr)
@@ -202,7 +209,7 @@ class WorkerThread(QThread):
             '-o', sign_out_file
         ]
         
-        result = subprocess.run(sign_cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(sign_cmd, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=True)
         self.log_signal.emit(result.stdout)
         if result.stderr:
             self.log_signal.emit(result.stderr)
