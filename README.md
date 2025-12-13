@@ -283,33 +283,6 @@ YY-Thunks 提供了对较新 Windows API 的向下兼容 thunk 实现。
 
 然后就可以使用Win7兼容模式编译加载器了。
 
-
-## ⚙️ 配置文件
-
-`config/plugins.json` 控制所有功能模块：
-
-```json
-{
-  "encryption": [
-    { "id": "ipv4", "label": "ipv4", "encrypt_arg": "ipv4", "feature": "decrypt_ipv4" }
-  ],
-  "alloc_mem_modes": [
-    { "id": "alloc_mem_va", "label": "VirtualAlloc", "feature": "alloc_mem_va" }
-  ],
-  "run_modes": [
-    { "id": "create_thread", "label": "CreateThread 直接执行 (create_thread)", "feature": "run_create_thread", "pattern": 1 }
-  ],
-  "vm_checks": [
-    { "id": "tick", "label": "Tick检测", "feature": "vm_check_tick" }
-  ],
-  "defaults": {
-    "encryption": "ipv4",
-    "run_mode": "create_thread",
-    "alloc_mem_mode": "alloc_mem_va"
-  }
-}
-```
-
 ## 🔧 命令行加密
 
 也可以单独使用加密脚本：
