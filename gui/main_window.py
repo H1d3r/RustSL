@@ -278,13 +278,20 @@ class LoaderGUI(QWidget):
         
         fixed_height = 230
         
-        self.win7_checkbox = QCheckBox("Win7 Compatibility")
-        self.win7_checkbox.setChecked(False)          
+        # Horizontal layout for checkboxes
+        checkbox_layout = QHBoxLayout()
+        self.win7_checkbox = QCheckBox("Win7")
+        self.win7_checkbox.setChecked(False)
+        self.debug_checkbox = QCheckBox("Debug")
+        self.debug_checkbox.setChecked(False)
+        checkbox_layout.addWidget(self.win7_checkbox)
+        checkbox_layout.addWidget(self.debug_checkbox)
+        
         self.gen_btn = QPushButton(QIcon(os.path.join('gui', 'icons', 'rocket.ico')), '')
         self.gen_btn.setIconSize(QSize(100, 100))
         self.gen_btn.setFixedSize(fixed_height, fixed_height)
         
-        right_layout.addWidget(self.win7_checkbox)
+        right_layout.addLayout(checkbox_layout)
         right_layout.addWidget(self.gen_btn)
         
         self.gen_btn.clicked.connect(self.run_all)
@@ -377,7 +384,8 @@ class LoaderGUI(QWidget):
             'target': target,
             'target_program': target_program,
             'target_pid': target_pid,
-            'win7_compat': self.win7_checkbox.isChecked()
+            'win7_compat': self.win7_checkbox.isChecked(),
+            'debug_mode': self.debug_checkbox.isChecked()
         }
     
     def on_gen_error(self, msg):

