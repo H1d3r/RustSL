@@ -1,15 +1,11 @@
 extern crate embed_resource;
 include!("src/thunk.rs");
-
 use std::{env, fs};
 
 fn main() {
     // Environment variables to watch for changes
     let env_vars = [
         "CARGO_FEATURE_WIN7",
-        "CARGO_FEATURE_PATTERN1",
-        "CARGO_FEATURE_PATTERN2",
-        "CARGO_FEATURE_PATTERN3",
         "CARGO_FEATURE_WITH_FORGERY",
         "RSL_TARGET_PROGRAM",
         "RSL_TARGET_PID",
@@ -46,12 +42,11 @@ fn main() {
         thunk();
     }
 
-    generate_icon_rc();
-
     if env::var("CARGO_FEATURE_WITH_FORGERY").is_ok() {
         copy_bundle_file();
     }
 
+    generate_icon_rc();
     embed_resource::compile("icon.rc");
 }
 
