@@ -392,8 +392,17 @@ class LoaderGUI(QWidget):
         self.stop_loading_anim()
         self.gen_btn.setEnabled(True)
         self.progress.setValue(0)
-        self.log_append('[Error] ' + msg)
-        QMessageBox.critical(self, 'Error', msg)
+        if "To debug, run the following command manually:" in msg:
+            parts = msg.split("To debug, run the following command manually:")
+            error_part = parts[0].strip()
+            cmd_part = parts[1].strip()
+            self.log_append('[Error] ' + error_part)
+            self.log_append('To debug, run the following command manually:')
+            self.log_append(cmd_part)
+            QMessageBox.critical(self, 'Build Failed', f"{error_part}\n\nTo debug, copy and run this command:\n{cmd_part}")
+        else:
+            self.log_append('[Error] ' + msg)
+            QMessageBox.critical(self, 'Error', msg)
 
     def on_forgery_changed(self):
         enabled = self.forgery_enable_box.isChecked()

@@ -119,10 +119,14 @@ class WorkerThread(QThread):
         
         full_cmd = ''.join(env_cmd_parts) + build_cmd_str
         
-        result = subprocess.run(full_cmd, shell=True, capture_output=True, text=True, encoding='utf-8', errors='ignore', check=True)
+        result = subprocess.run(full_cmd, shell=True, capture_output=True, text=True, encoding='utf-8', errors='ignore')
         self.log_signal.emit(result.stdout)
         if result.stderr:
             self.log_signal.emit(result.stderr)
+        
+        if result.returncode != 0:
+            error_msg = f"Build failed with exit code {result.returncode}.\n\nTo debug, run the following command manually:\n{full_cmd}"
+            raise Exception(error_msg)
         
         self.progress_signal.emit(50)
 
