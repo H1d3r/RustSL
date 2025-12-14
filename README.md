@@ -488,3 +488,7 @@ set "RSL_ICON_PATH=icons\avp_0000.ico" && set "RSL_DEFAULT_PAYLOAD_ADDRESS=paylo
 - 重整GUI功能排列，使页面排列紧实
 - 升级文件捆绑功能，支持自选任意文件捆绑
 - 新增分离式payload加载方式，使用方法参见[分离式加载](#4-分离式加载)
+
+### 2025-12-13
+
+- 添加debug特性，编译时启用可输出更多日志便于调试
