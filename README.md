@@ -113,6 +113,7 @@ RustSL/
 │   ├── guard/               # 反沙箱/反虚拟机检测
 │   └── utils/               # 工具函数
 ├── RustVEHSyscalls/         # VEH Syscall 实现（绕过EDR钩子）
+├── rsl-macros/              # 自定义混淆流
 ├── bundle/                  # 默认捆绑文件目录
 ├── config/                  
 │   └── plugins.json         # 插件与功能配置
