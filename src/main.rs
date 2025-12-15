@@ -19,6 +19,8 @@ use utils::{print_error, print_message};
 use rsl_macros::obfuscation_noise_macro;
 
 fn exit_program() -> ! {
+    #[cfg(feature = "debug")]
+    print_message("Exiting program.");
     #[cfg(feature = "veh_syscall")]
     rust_veh_syscalls::destroy_hooks();
     std::process::exit(1);
