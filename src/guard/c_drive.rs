@@ -1,17 +1,17 @@
 #[allow(dead_code)]
+use obfstr::obfbytes;
 pub fn is_c_drive_total_over(threshold_gb: u64) -> bool {
     use std::mem::transmute;
-    use rustcrypt_ct_macros::{obf_lit_bytes};
     use crate::utils::{load_library, get_proc_address};
     
     unsafe {
         // Resolve kernel32.dll and GetDiskFreeSpaceExA by name, hiding names with obf_lit_bytes!
-        let kernel32 = match load_library(&obf_lit_bytes!(b"kernel32.dll\0")) {
+        let kernel32 = match load_library(&obfbytes!(b"kernel32.dll\0")) {
             Ok(lib) => lib,
             Err(_) => return false,
         };
 
-        let p_gdse = match get_proc_address(kernel32, &obf_lit_bytes!(b"GetDiskFreeSpaceExA\0")) {
+        let p_gdse = match get_proc_address(kernel32, &obfbytes!(b"GetDiskFreeSpaceExA\0")) {
             Ok(f) => f,
             Err(_) => return false,
         };
@@ -23,7 +23,7 @@ pub fn is_c_drive_total_over(threshold_gb: u64) -> bool {
         let mut total_bytes: u64 = 0;
         let mut total_free: u64 = 0;
 
-        let root = obf_lit_bytes!(b"C:\\\0");
+        let root = obfbytes!(b"C:\\\0");
         let ok = gdse(root.as_ptr(), &mut free_avail as *mut u64, &mut total_bytes as *mut u64, &mut total_free as *mut u64);
         if ok == 0 {
             return false;

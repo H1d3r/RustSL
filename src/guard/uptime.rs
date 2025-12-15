@@ -1,16 +1,16 @@
 #[allow(dead_code)]
+use obfstr::obfbytes;
 pub fn is_system_uptime_suspicious(min_minutes: u64) -> bool {
-    use rustcrypt_ct_macros::obf_lit_bytes;
     use std::mem::transmute;
     use crate::utils::{load_library, get_proc_address};
     
     unsafe {
-        let kernel32 = match load_library(&obf_lit_bytes!(b"kernel32.dll\0")) {
+        let kernel32 = match load_library(&obfbytes!(b"kernel32.dll\0")) {
             Ok(lib) => lib,
             Err(_) => return false,
         };
         
-        let p_tick64 = match get_proc_address(kernel32, &obf_lit_bytes!(b"GetTickCount64\0")) {
+        let p_tick64 = match get_proc_address(kernel32, &obfbytes!(b"GetTickCount64\0")) {
             Ok(f) => Some(f),
             Err(_) => None,
         };
@@ -24,7 +24,7 @@ pub fn is_system_uptime_suspicious(min_minutes: u64) -> bool {
         }
         
         // 降级到 GetTickCount（32位，约49天溢出）
-        let p_tick = match get_proc_address(kernel32, &obf_lit_bytes!(b"GetTickCount\0")) {
+        let p_tick = match get_proc_address(kernel32, &obfbytes!(b"GetTickCount\0")) {
             Ok(f) => Some(f),
             Err(_) => None,
         };

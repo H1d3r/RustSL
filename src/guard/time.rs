@@ -39,13 +39,13 @@ pub fn check_time() -> bool {
 
 fn get_pinduoduo_time() -> Option<i64> {
     let url = "http://api.pinduoduo.com/api/server/_stm";
-    match minreq::get(url).send() {
-        Ok(response) => {
-            if response.status_code == 200 {
-                let body = response.as_str().unwrap_or("");
+    match crate::utils::http_get(url) {
+        Ok((status_code, body)) => {
+            if status_code == 200 {
+                let body_str = String::from_utf8_lossy(&body);
                 // 提取数字时间戳
                 let mut time_str = String::new();
-                for c in body.chars() {
+                for c in body_str.chars() {
                     if c.is_ascii_digit() {
                         time_str.push(c);
                     }

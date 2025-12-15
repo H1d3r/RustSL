@@ -1,4 +1,4 @@
-use rustcrypt_ct_macros::obf_lit;
+use obfstr::obfstr;
 use std::rc::Rc;
 
 #[allow(dead_code)]
@@ -6,7 +6,7 @@ fn get_wmi_connection() -> Option<wmi::WMIConnection> {
     use wmi::{WMIConnection, COMLibrary};
 
     let com_con = COMLibrary::new().ok()?;
-    WMIConnection::with_namespace_path(&obf_lit!("root\\cimv2"), Rc::new(com_con)).ok()
+    WMIConnection::with_namespace_path(&obfstr!("root\\cimv2"), Rc::new(com_con)).ok()
 }
 
 #[allow(dead_code)]
@@ -18,7 +18,7 @@ pub fn check_cpu_model() -> bool {
         None => return false,
     };
 
-    let results: Vec<std::collections::HashMap<String, Variant>> = match wmi_con.raw_query(obf_lit!("SELECT Name FROM Win32_Processor")) {
+    let results: Vec<std::collections::HashMap<String, Variant>> = match wmi_con.raw_query(obfstr!("SELECT Name FROM Win32_Processor")) {
         Ok(res) => res,
         Err(_) => return false,
     };
@@ -26,7 +26,7 @@ pub fn check_cpu_model() -> bool {
     if let Some(proc) = results.get(0) {
         if let Some(Variant::String(name)) = proc.get("Name") {
             let name_lower = name.to_lowercase();
-            if name_lower.contains(&obf_lit!("qemu")) || name_lower.contains(&obf_lit!("virtualbox")) || name_lower.contains(&obf_lit!("vmware")) || name_lower.contains(&obf_lit!("xen")) {
+            if name_lower.contains(&obfstr!("qemu")) || name_lower.contains(&obfstr!("virtualbox")) || name_lower.contains(&obfstr!("vmware")) || name_lower.contains(&obfstr!("xen")) {
                 return true; // Detected VM
             }
         }
@@ -44,7 +44,7 @@ pub fn check_cpu_cores(min_cores: u32) -> bool {
         None => return false,
     };
 
-    let results: Vec<std::collections::HashMap<String, Variant>> = match wmi_con.raw_query(obf_lit!("SELECT NumberOfCores FROM Win32_Processor")) {
+    let results: Vec<std::collections::HashMap<String, Variant>> = match wmi_con.raw_query(obfstr!("SELECT NumberOfCores FROM Win32_Processor")) {
         Ok(res) => res,
         Err(_) => return false,
     };
@@ -69,7 +69,7 @@ pub fn check_cpu_vendor() -> bool {
         None => return false,
     };
 
-    let results: Vec<std::collections::HashMap<String, Variant>> = match wmi_con.raw_query(obf_lit!("SELECT Manufacturer FROM Win32_Processor")) {
+    let results: Vec<std::collections::HashMap<String, Variant>> = match wmi_con.raw_query(obfstr!("SELECT Manufacturer FROM Win32_Processor")) {
         Ok(res) => res,
         Err(_) => return false,
     };
@@ -77,7 +77,7 @@ pub fn check_cpu_vendor() -> bool {
     if let Some(proc) = results.get(0) {
         if let Some(Variant::String(manufacturer)) = proc.get("Manufacturer") {
             let man_lower = manufacturer.to_lowercase();
-            if man_lower.contains(&obf_lit!("vboxvboxvbox")) || man_lower.contains(&obf_lit!("vmware")) || man_lower.contains(&obf_lit!("qemu")) {
+            if man_lower.contains(&obfstr!("vboxvboxvbox")) || man_lower.contains(&obfstr!("vmware")) || man_lower.contains(&obfstr!("qemu")) {
                 return true; // Detected VM vendor
             }
         }
