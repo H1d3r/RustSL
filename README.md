@@ -6,6 +6,8 @@
 
 一款基于 Rust 开发的模块化免杀框架，支持 GUI 可视化与灵活的二次开发，内置多种 Shellcode 伪装与反沙箱策略。
 
+> 新增了syscall版的RustSL，感兴趣的可以查看[RustSL-Syscall](https://github.com/echQoQ/RustSL-Syscall)
+
 ![alt text](static/front.png)
 
 
